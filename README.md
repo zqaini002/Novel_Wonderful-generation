@@ -1,7 +1,6 @@
 # 小说精读助手 (Novel Assistant)
 
 <div align="center">
-    <img src="docs/images/logo.png" alt="Logo" width="200" height="200" />
     <p>
         <strong>AI驱动的小说内容分析与摘要生成系统</strong>
     </p>
@@ -16,8 +15,15 @@
 
 ## 项目简介
 
-小说精读助手是一个帮助读者快速了解小说内容并做出阅读决策的工具。它使用人工智能技术分析小说文本，生成智能摘要，提取关键信息，并以可视化方式展示小说的结构和特点。
-
+我在看小说时遇到的问题，让我决定做这个软件
+一、那些年读小说踩过的坑
+        作为一个资深小说爱好者，我在阅读中频繁遇到这些困扰：
+    筛选难：面对书架上几百本小说，不知道哪本 “不踩雷”——
+    简介写得天花乱坠，实际剧情拖沓、人设崩塌，比如某科幻小说前 10 章都在堆砌技术术语，主线剧情推进极慢。
+    想找 “反套路” 小说，却只能靠网友评论盲选，耗时又低效。
+二、理解累：
+        复杂世界观小说（如修真体系、星际设定），章节内容零散，看完记不住核心设定，比如某玄幻小说里 300 个门派设定，根本理不清脉络。
+    长章节小说（如百万字网文），中间穿插大量填充内容，想跳过 “水章” 却担心错过主线，比如某历史小说每 5 章就有 2 章在描写无关的配角日常。
 无论您是想快速了解一部新小说，还是希望深入分析您喜爱的作品，小说精读助手都能提供帮助。
 
 ## 核心功能
@@ -83,9 +89,7 @@
 
 ### 安装步骤
 
-1. **克隆仓库**
-
-2. **配置数据库**
+1. **配置数据库**
 ```bash
 # 创建数据库和表结构
 mysql -u root -p < sql/schema.sql
@@ -93,36 +97,26 @@ mysql -u root -p < sql/schema.sql
 mysql -u root -p < sql/sample_data.sql
 ```
 
-3. **配置后端**
+2. **配置后端**
 ```bash
 cd backend
 # 修改application.properties中的数据库连接信息
 mvn clean install
 ```
 
-4. **启动后端服务**
+3. **启动后端服务**
 ```bash
 mvn spring-boot:run
 ```
 
-5. **安装和启动前端**
+4. **安装和启动前端**
 ```bash
 cd ../frontend
 npm install
 npm run serve
 ```
 
-6. 打开浏览器访问 `http://localhost:8081`
-
-## 演示
-
-
-
-
-
-![小说上传页面](docs/images/upload_page.png)
-![小说分析页面](docs/images/analysis_page.png)
-![标签系统](docs/images/tag_system.png)
+5. 打开浏览器访问 `http://localhost:8081`
 
 ## 使用流程
 
@@ -169,7 +163,7 @@ npm run serve
 
 ## 版本历史
 
-- **v0.9.0** (2023-06-15): 基础版发布
+- **v0.9.0** (2025-04-14): 基础版发布
 
 ## 许可证
 
@@ -178,8 +172,6 @@ npm run serve
 ## 联系方式
 
 - 项目维护者: [七七](tanqi03@126.com)
-- 项目网站: https://novelassistant.example.com
-
 ---
 
 <div align="center">
