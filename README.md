@@ -1,4 +1,4 @@
-# 小说精读助手 (Novel Assistant)
+# NovelSight 小说智析 (Novel Assistant)
 
 <div align="center">
     <p>
