@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 📚 NovelSight 小说智析 | Novel Assistant
 
 <div align="center">
@@ -16,13 +17,38 @@
       <a href="#技术栈">⚙️ 技术栈</a> •
       <a href="#项目进度">📊 进度</a>
   </p>
+# NovelSight 小说智析 (Novel Assistant)
+
+<div align="center">
+    <p>
+        <strong>AI驱动的小说内容分析与摘要生成系统</strong>
+    </p>
+    <p>
+        <a href="#核心功能">功能</a> •
+        <a href="#快速开始">快速开始</a> •
+        <a href="#系统架构">架构</a> •
+        <a href="#演示">演示</a> •
+        <a href="#贡献指南">贡献</a>
+    </p>
 </div>
+
 
 ## 🌟 项目简介
 
 > **让小说阅读更高效，内容理解更深入**
 
 ### 💬 那些年读小说踩过的坑
+我在看小说时遇到的问题，让我决定做这个软件
+一、那些年读小说踩过的坑
+- 作为一个资深小说爱好者，我在阅读中频繁遇到这些困扰：
+- 筛选难：面对书架上几百本小说，不知道哪本 “不踩雷”——
+- 简介写得天花乱坠，实际剧情拖沓、人设崩塌，比如某科幻小说前 10 章都在堆砌技术术语，主线剧情推进极慢。
+- 想找 “反套路” 小说，却只能靠网友评论盲选，耗时又低效。
+
+二、理解累：
+- 复杂世界观小说（如修真体系、星际设定），章节内容零散，看完记不住核心设定，比如某玄幻小说里 300 个门派设定，根本理不清脉络。
+- 长章节小说（如百万字网文），中间穿插大量填充内容，想跳过 “水章” 却担心错过主线，比如某历史小说每 5 章就有 2 章在描写无关的配角日常。
+-无论您是想快速了解一部新小说，还是希望深入分析您喜爱的作品，小说精读助手都能提供帮助。
 
 身为资深小说爱好者，我在阅读中频繁遇到这些困扰：
 
@@ -317,7 +343,7 @@ graph TD
 
 <details>
 <summary><b>1. 配置数据库</b></summary>
-
+1. **配置数据库**
 ```bash
 # 创建数据库和表结构
 mysql -u root -p < sql/schema.sql
@@ -325,11 +351,12 @@ mysql -u root -p < sql/schema.sql
 # 可选：导入示例数据
 mysql -u root -p < sql/sample_data.sql
 ```
-</details>
-
 <details>
 <summary><b>2. 配置后端</b></summary>
 
+<<<<<<< HEAD
+=======
+2. **配置后端**
 ```bash
 cd backend
 # 修改application.properties中的数据库连接信息
@@ -339,29 +366,25 @@ mvn clean install
 
 <details>
 <summary><b>3. 启动后端服务</b></summary>
-
+3. **启动后端服务**
 ```bash
 mvn spring-boot:run
 ```
-</details>
-
 <details>
 <summary><b>4. 安装和启动前端</b></summary>
 
+<<<<<<< HEAD
+=======
+4. **安装和启动前端**
 ```bash
 cd ../frontend
 npm install
 npm run serve
 ```
-</details>
-
 <details>
 <summary><b>5. 访问应用</b></summary>
-
 打开浏览器访问 http://localhost:8081
-</details>
-
-## 📱 使用流程
+📱 使用流程
 
 <div align="center">
   <table>
@@ -389,7 +412,7 @@ npm run serve
 - 📈 摘要准确率: **>85%** (基于人工评估)
 
 ## 🔮 版本历史
-
+5. 打开浏览器访问 `http://localhost:8081`
 - **v0.9.0** (2025-04-14): 基础版发布
   - 完成基础架构搭建
     - 后端: Spring Boot 2.7.12 + Spring Security 5.7.8 + JPA
@@ -428,13 +451,18 @@ npm run serve
 - 前端代码遵循Vue.js风格指南
 
 ## 📜 许可证
+## 版本历史
 
+- **v0.9.0** (2025-04-14): 基础版发布
+
+## 许可证
 本项目采用MIT许可证。详见 [LICENSE](LICENSE) 文件。
 
 ## 📞 联系方式
 
 - 项目维护者: [七七](mailto:tanqi03@126.com)
 
+- 项目维护者: [七七](tanqi03@126.com)
 ---
 
 <div align="center">
