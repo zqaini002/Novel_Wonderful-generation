@@ -18,12 +18,29 @@
       >
         <template #extra>
           <el-button type="primary" @click="fetchData">重试</el-button>
-          <el-button @click="$router.push({ name: 'home' })">返回首页</el-button>
+          <el-button @click="$router.push({name: 'home'})">返回首页</el-button>
         </template>
       </el-result>
     </div>
     
-    <template v-else>
+    <div v-else class="novel-content">
+      <el-alert
+        v-if="isDemo"
+        title="当前处于演示模式"
+        type="warning"
+        class="demo-notice"
+        show-icon
+        :closable="false"
+        effect="dark"
+      >
+        <template #default>
+          <div class="demo-alert-content">
+            <el-icon class="demo-icon"><InfoFilled /></el-icon>
+            <span>显示的是预设数据，而非实际处理结果。您可以浏览所有功能，但数据仅供展示</span>
+          </div>
+        </template>
+      </el-alert>
+      
       <div class="novel-header">
         <div class="card-header">
           <span class="title">{{ novel.title }}</span>
@@ -35,15 +52,6 @@
         </div>
         <p class="description">{{ novel.description }}</p>
       </div>
-      
-      <el-alert
-        v-if="isDemo"
-        title="当前处于演示模式，显示的是预设数据，而非实际处理结果"
-        type="warning"
-        class="demo-notice"
-        show-icon
-        :closable="false"
-      />
       
       <el-tabs v-model="activeTab" type="border-card">
         <el-tab-pane label="摘要分析" name="summary">
@@ -122,7 +130,7 @@
           </div>
         </el-tab-pane>
       </el-tabs>
-    </template>
+    </div>
     
     <el-dialog v-model="dialogVisible" title="章节摘要" width="50%" :append-to-body="true" destroy-on-close>
       <div v-if="selectedChapter">
@@ -154,9 +162,13 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import novelApi from '@/api/novel'
+import { InfoFilled } from '@element-plus/icons-vue'
 
 export default {
   name: 'NovelDetailView',
+  components: {
+    InfoFilled
+  },
   setup() {
     const route = useRoute()
     
@@ -347,7 +359,21 @@ h3 {
 }
 
 .demo-notice {
-  margin-bottom: 16px;
+  margin: 15px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.demo-alert-content {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.demo-icon {
+  margin-right: 5px;
+  font-size: 16px;
+  color: #ffcc00;
 }
 
 .mb-3 {

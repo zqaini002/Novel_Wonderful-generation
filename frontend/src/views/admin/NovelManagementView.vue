@@ -1,0 +1,315 @@
+<template>
+  <div class="novel-management-container">
+    <el-card class="novel-management-card">
+      <template #header>
+        <div class="card-header">
+          <h2>小说管理</h2>
+          <div class="header-actions">
+            <el-input
+              v-model="searchQuery"
+              placeholder="搜索小说标题或作者"
+              clearable
+              @clear="filterNovels"
+              @input="filterNovels"
+              style="width: 300px; margin-right: 10px;"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
+            <el-button type="primary" @click="refreshNovels">刷新</el-button>
+          </div>
+        </div>
+      </template>
+      
+      <div v-if="loading" class="loading-container">
+        <el-skeleton :rows="10" animated />
+      </div>
+      
+      <div v-else class="novel-table-container">
+        <el-table
+          :data="displayNovels"
+          style="width: 100%"
+          border
+          stripe
+          highlight-current-row
+          @row-click="handleRowClick"
+        >
+          <el-table-column prop="id" label="ID" width="80" />
+          <el-table-column prop="title" label="标题" width="200" />
+          <el-table-column prop="author" label="作者" width="150" />
+          <el-table-column label="状态" width="120">
+            <template #default="scope">
+              <el-tag :type="getStatusType(scope.row.status)">
+                {{ formatStatus(scope.row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="章节数" width="100">
+            <template #default="scope">
+              {{ scope.row.chapterCount || 0 }}
+            </template>
+          </el-table-column>
+          <el-table-column label="字数" width="120">
+            <template #default="scope">
+              {{ formatWordCount(scope.row.wordCount) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="上传时间" width="180">
+            <template #default="scope">
+              {{ formatDate(scope.row.createdAt) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="220" fixed="right">
+            <template #default="scope">
+              <el-button
+                size="small"
+                type="primary"
+                @click.stop="viewNovelDetail(scope.row.id)"
+              >
+                查看
+              </el-button>
+              <el-button
+                size="small"
+                type="warning"
+                @click.stop="reprocessNovel(scope.row)"
+                :disabled="scope.row.status === 'PROCESSING'"
+              >
+                重新处理
+              </el-button>
+              <el-button
+                size="small"
+                type="danger"
+                @click.stop="deleteNovel(scope.row)"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        
+        <div class="pagination-container">
+          <el-pagination
+            background
+            layout="prev, pager, next, sizes, total"
+            :total="totalNovels"
+            :page-size="pageSize"
+            :page-sizes="[10, 20, 50, 100]"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </div>
+    </el-card>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Search } from '@element-plus/icons-vue'
+import adminService from '@/api/admin'
+
+const router = useRouter()
+const loading = ref(true)
+const novels = ref([])
+const searchQuery = ref('')
+const currentPage = ref(1)
+const pageSize = ref(20)
+const totalNovels = ref(0)
+
+// 获取所有小说列表
+const fetchNovels = async () => {
+  loading.value = true
+  try {
+    const response = await adminService.getAllNovels()
+    novels.value = response.data.novels || []
+    totalNovels.value = response.data.total || novels.value.length
+  } catch (error) {
+    console.error('获取小说列表失败:', error)
+    ElMessage.error('获取小说列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 刷新小说列表
+const refreshNovels = () => {
+  fetchNovels()
+}
+
+// 过滤小说列表
+const filterNovels = () => {
+  // 这里简单实现前端过滤，实际项目中可能需要发送请求到后端进行过滤
+  const query = searchQuery.value.toLowerCase().trim()
+  if (!query) {
+    return novels.value
+  }
+  
+  return novels.value.filter(novel => 
+    novel.title.toLowerCase().includes(query) ||
+    (novel.author && novel.author.toLowerCase().includes(query))
+  )
+}
+
+// 计算属性：根据搜索条件显示小说
+const displayNovels = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim()
+  if (!query) {
+    return novels.value
+  }
+  
+  return novels.value.filter(novel => 
+    novel.title.toLowerCase().includes(query) ||
+    (novel.author && novel.author.toLowerCase().includes(query))
+  )
+})
+
+// 格式化日期
+const formatDate = (dateString) => {
+  if (!dateString) return '未知'
+  const date = new Date(dateString)
+  return date.toLocaleString()
+}
+
+// 格式化状态
+const formatStatus = (status) => {
+  switch (status) {
+    case 'PROCESSING':
+      return '处理中'
+    case 'COMPLETED':
+      return '已完成'
+    case 'FAILED':
+      return '处理失败'
+    case 'QUEUED':
+      return '等待处理'
+    default:
+      return status
+  }
+}
+
+// 获取状态对应的类型
+const getStatusType = (status) => {
+  switch (status) {
+    case 'PROCESSING':
+      return 'warning'
+    case 'COMPLETED':
+      return 'success'
+    case 'FAILED':
+      return 'danger'
+    case 'QUEUED':
+      return 'info'
+    default:
+      return 'info'
+  }
+}
+
+// 格式化字数
+const formatWordCount = (count) => {
+  if (!count) return '0'
+  if (count < 10000) {
+    return count.toString()
+  }
+  return (count / 10000).toFixed(2) + '万'
+}
+
+// 查看小说详情
+const viewNovelDetail = (id) => {
+  router.push(`/novel/${id}`)
+}
+
+// 重新处理小说
+const reprocessNovel = (novel) => {
+  ElMessageBox.confirm(
+    `确定要重新处理小说"${novel.title}"吗？`,
+    '确认操作',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  )
+  .then(() => {
+    ElMessage.success('已发送重新处理请求')
+    // 实际项目中这里应该调用API来重新处理小说
+  })
+  .catch(() => {})
+}
+
+// 删除小说
+const deleteNovel = (novel) => {
+  ElMessageBox.confirm(
+    `确定要删除小说"${novel.title}"吗？此操作不可恢复！`,
+    '危险操作',
+    {
+      confirmButtonText: '确定删除',
+      cancelButtonText: '取消',
+      type: 'error'
+    }
+  )
+  .then(async () => {
+    try {
+      await adminService.deleteNovel(novel.id)
+      ElMessage.success('小说删除成功')
+      fetchNovels() // 刷新列表
+    } catch (error) {
+      console.error('删除小说失败:', error)
+      ElMessage.error('删除小说失败')
+    }
+  })
+  .catch(() => {})
+}
+
+// 处理行点击
+const handleRowClick = (row) => {
+  viewNovelDetail(row.id)
+}
+
+// 处理每页数量变化
+const handleSizeChange = (size) => {
+  pageSize.value = size
+  // 这里需要根据实际情况重新获取数据
+}
+
+// 处理页码变化
+const handleCurrentChange = (page) => {
+  currentPage.value = page
+  // 这里需要根据实际情况重新获取数据
+}
+
+// 组件挂载时获取数据
+onMounted(() => {
+  fetchNovels()
+})
+</script>
+
+<style scoped>
+.novel-management-container {
+  padding: 20px;
+}
+
+.novel-management-card {
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.loading-container {
+  padding: 20px;
+}
+
+.novel-table-container {
+  overflow-x: auto;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+</style> 

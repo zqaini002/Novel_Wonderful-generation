@@ -1,6 +1,7 @@
 package com.novelassistant.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -16,8 +17,11 @@ public class Novel {
     @Column(nullable = false)
     private String title;
     
-    @Column
+    @Column(name = "author_name")
     private String author;
+    
+    @Column(name = "source_url")
+    private String sourceUrl;
     
     @Column
     private String description;
@@ -43,6 +47,10 @@ public class Novel {
     @Column(name = "character_development_summary")
     @Lob
     private String characterDevelopmentSummary;
+    
+    @Column(name = "plot_progression_summary")
+    @Lob
+    private String plotProgressionSummary;
     
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -99,6 +107,14 @@ public class Novel {
         this.author = author;
     }
     
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+    
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
+    }
+    
     public String getDescription() {
         return description;
     }
@@ -153,6 +169,14 @@ public class Novel {
     
     public void setCharacterDevelopmentSummary(String characterDevelopmentSummary) {
         this.characterDevelopmentSummary = characterDevelopmentSummary;
+    }
+    
+    public String getPlotProgressionSummary() {
+        return plotProgressionSummary;
+    }
+    
+    public void setPlotProgressionSummary(String plotProgressionSummary) {
+        this.plotProgressionSummary = plotProgressionSummary;
     }
     
     public Date getCreatedAt() {

@@ -6,7 +6,9 @@
           <header-component />
         </el-header>
         <el-main>
-          <router-view />
+          <transition name="fade" mode="out-in">
+            <router-view />
+          </transition>
         </el-main>
         <el-footer>
           <footer-component />
@@ -34,39 +36,141 @@ export default defineComponent({
     return {
       zhCn
     }
+  },
+  created() {
+    // 删除这部分代码，因为这些逻辑已经在router/index.js中实现
+    // this.$router.beforeEach((to, from, next) => {
+    //   // 设置页面标题
+    //   document.title = to.meta.title || '小说精读助手'
+    //   
+    //   // 判断该路由是否需要登录权限
+    //   if (to.matched.some(record => record.meta.requiresAuth)) {
+    //     const user = JSON.parse(localStorage.getItem('user'))
+    //     
+    //     if (!user) {
+    //       // 用户未登录，跳转到登录页
+    //       next({
+    //         path: '/login',
+    //         query: { redirect: to.fullPath }
+    //       })
+    //     } else if (to.matched.some(record => record.meta.requiresAdmin)) {
+    //       // 检查是否有管理员权限
+    //       const isAdmin = user.roles && user.roles.some(role => role.name === 'ROLE_ADMIN')
+    //       
+    //       if (!isAdmin) {
+    //         // 无管理员权限，跳转到首页
+    //         next({ path: '/' })
+    //       } else {
+    //         // 有管理员权限，继续访问
+    //         next()
+    //       }
+    //     } else {
+    //       // 普通登录页面，继续访问
+    //       next()
+    //     }
+    //   } else {
+    //     // 不需要登录的页面
+    //     next()
+    //   }
+    // })
   }
 })
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+:root {
+  --primary-color: #4d7bef;
+  --secondary-color: #5e60ce;
+  --background-color: #f9fafc;
+  --text-color: #333;
+  --border-color: #eaedf2;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --radius: 8px;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  font-family: 'Noto Sans SC', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .app-container {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-image: 
+    radial-gradient(circle at 100% 0%, rgba(77, 123, 239, 0.05) 0%, transparent 25%),
+    radial-gradient(circle at 0% 80%, rgba(94, 96, 206, 0.05) 0%, transparent 25%);
+  background-attachment: fixed;
+  background-size: cover;
 }
 
 .el-header {
   padding: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .12);
   z-index: 999;
 }
 
 .el-main {
   flex: 1;
-  padding: 20px;
-  background-color: #f5f7fa;
+  padding: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .el-footer {
-  padding: 20px 0;
-  background-color: #f5f7fa;
-  border-top: 1px solid #e6e6e6;
+  padding: 30px 0;
+  background-color: #fff;
+  border-top: 1px solid var(--border-color);
+}
+
+/* 卡片样式优化 */
+.el-card {
+  border-radius: var(--radius);
+  border: none;
+  box-shadow: var(--shadow-sm) !important;
+  transition: box-shadow 0.3s;
+  overflow: hidden;
+}
+
+.el-card:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* 按钮样式优化 */
+.el-button {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.el-button--primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  border: none;
+}
+
+/* 动画效果 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 移动设备适配 */
+@media (max-width: 768px) {
+  .el-main {
+    padding: 16px;
+  }
 }
 </style> 

@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 import novelApi from '@/api/novel'
+import { auth } from './auth.module'
 
 export default createStore({
   state: {
@@ -147,6 +148,16 @@ export default createStore({
         const statusCheckInterval = setInterval(async () => {
           try {
             const statusResponse = await novelApi.getNovelStatus(novelId)
+            
+            // 处理小说不存在的情况
+            if (statusResponse.status === 'NOT_FOUND') {
+              console.error('小说不存在:', statusResponse.error)
+              clearInterval(statusCheckInterval)
+              commit('SET_PROCESSING_STATUS', 'FAILED')
+              commit('SET_ERROR', `小说处理失败: ${statusResponse.error}`)
+              return
+            }
+            
             commit('SET_PROCESSING_STATUS', statusResponse.status.toUpperCase())
             
             if (statusResponse.status === 'COMPLETED' || statusResponse.status === 'FAILED') {
@@ -189,9 +200,16 @@ export default createStore({
         default: return 0
       }
     },
-    isLoggedIn: () => {
-      // 暂时模拟用户未登录状态
-      return false
+    // 获取用户登录状态
+    isLoggedIn: (state) => {
+      return state.auth && state.auth.status && state.auth.status.loggedIn
+    },
+    // 获取当前登录用户
+    currentUser: (state) => {
+      return state.auth && state.auth.user ? state.auth.user : null
     }
+  },
+  modules: {
+    auth
   }
 }) 

@@ -48,8 +48,20 @@ public class NovelServiceImpl implements NovelService {
     }
     
     @Override
+    public boolean existsNovelById(Long id) {
+        return novelRepository.existsById(id);
+    }
+    
+    @Override
     public Map<String, Object> getNovelStatus(Long id) {
-        Novel novel = getNovelById(id);
+        if (!existsNovelById(id)) {
+            Map<String, Object> status = new HashMap<>();
+            status.put("status", "NOT_FOUND");
+            status.put("error", "小说不存在: " + id);
+            return status;
+        }
+        
+        Novel novel = novelRepository.findById(id).get(); // 这里可以安全地使用get()，因为已经检查了存在性
         
         Map<String, Object> status = new HashMap<>();
         status.put("status", novel.getProcessingStatus().name());
@@ -192,6 +204,7 @@ public class NovelServiceImpl implements NovelService {
             novel.setOverallSummary("这是一部" + novel.getTitle() + "的小说，由" + novel.getAuthor() + "创作。");
             novel.setWorldBuildingSummary("小说中的世界设定...");
             novel.setCharacterDevelopmentSummary("小说中的主要人物...");
+            novel.setPlotProgressionSummary("故事情节发展...");
             
             // 添加一些示例标签
             addTag(novel, "小说", Tag.TagType.INFO);

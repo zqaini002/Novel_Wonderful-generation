@@ -24,6 +24,13 @@ public interface NovelService {
     Novel getNovelById(Long id);
     
     /**
+     * 检查小说是否存在
+     * @param id 小说ID
+     * @return 如果存在返回true，否则返回false
+     */
+    boolean existsNovelById(Long id);
+    
+    /**
      * 获取小说处理状态
      * @param id 小说ID
      * @return 处理状态信息

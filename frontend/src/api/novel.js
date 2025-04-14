@@ -20,7 +20,21 @@ const novelService = {
     if (!novelId) {
       throw new Error('小说ID不能为空');
     }
-    return apiClient.get(`/api/novels/${novelId}/status`);
+    try {
+      return await apiClient.get(`/api/novels/${novelId}/status`);
+    } catch (error) {
+      // 如果是404错误，返回一个格式化的状态对象而不是抛出异常
+      if (error.response && error.response.status === 404) {
+        return {
+          status: 'NOT_FOUND',
+          error: `小说不存在: ${novelId}`,
+          processedChapters: 0,
+          totalChapters: 0
+        };
+      }
+      // 其他错误仍然抛出
+      throw error;
+    }
   },
 
   // 上传小说

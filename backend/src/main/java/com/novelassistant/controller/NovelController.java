@@ -43,9 +43,21 @@ public class NovelController {
     @GetMapping("/novels/{id}/status")
     public ResponseEntity<?> getNovelStatus(@PathVariable("id") Long id) {
         try {
+            // 检查小说是否存在
+            boolean exists = novelService.existsNovelById(id);
+            if (!exists) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("error", "小说不存在");
+                errorResponse.put("id", id);
+                errorResponse.put("status", "NOT_FOUND");
+                return ResponseEntity.status(404).body(errorResponse);
+            }
+            
             return ResponseEntity.ok(novelService.getNovelStatus(id));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
     
