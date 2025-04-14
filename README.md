@@ -722,3 +722,321 @@ npm run serve
   <sub>Built with ❤️ | MIT License</sub>
 </div> 
 
+## ⚙️ Technical Stack (English Version)
+
+### Backend Technical Details
+
+#### 🔧 Core Framework
+
+* **JDK**: Oracle JDK 11.0.21 (LTS Version)
+  * Modular System Support
+  * Enhanced String API
+  * Improved Garbage Collector
+* **Spring Ecosystem**:
+  * Spring Boot 2.7.12
+    * Auto-configuration
+    * Embedded Server (Tomcat 9.0.73)
+    * Production-ready Features
+  * Spring Framework 5.3.27
+    * IoC Container
+    * AOP Support
+    * WebMVC Framework
+  * Spring Security 5.7.8
+    * Authentication & Authorization
+    * Password Encryption (BCrypt)
+    * CORS Configuration
+  * Spring Data JPA 2.7.12
+    * Repository Pattern
+    * Dynamic Query Generation
+    * Audit Features
+
+#### 💾 Data Persistence Layer
+
+* **ORM Framework**: 
+  * Hibernate 5.6.15.Final
+    * Second-level Cache
+    * Lazy Loading
+    * Batch Processing
+* **Database**: 
+  * MySQL 8.0.33
+    * InnoDB Engine
+    * UTF8MB4 Character Set
+    * Optimized Indexes
+
+#### 🔐 Security Framework
+
+* **JWT**: jjwt 0.11.5
+  * Stateless Authentication
+  * Configurable Expiration
+  * Refresh Token Support
+* **Encryption**:
+  * BCrypt (10 Rounds)
+  * HTTPS/TLS 1.3
+* **Security Protection**:
+  * XSS Protection
+  * CSRF Protection
+  * SQL Injection Protection
+
+#### 📝 Document Processing
+
+* **Text Parsing**:
+  * JSoup 1.16.1 (HTML Parsing)
+  * Apache PDFBox 2.0.27
+  * Apache POI 5.2.3 (Office Documents)
+* **Natural Language Processing**:
+  * HanLP portable-1.8.4
+    * Chinese Word Segmentation
+    * Named Entity Recognition
+    * Keyword Extraction
+  * OpenNLP 1.9.4
+
+### Frontend Technical Details
+
+#### 🎨 Core Framework
+
+* **Vue.js 3.2.47**:
+  * Composition API
+  * Reactive System
+  * Virtual DOM
+* **State Management**:
+  * Vuex 4.0.2
+    * State Persistence
+    * Modular Management
+* **Routing**:
+  * Vue Router 4.1.6
+    * Dynamic Routing
+    * Route Guards
+    * Lazy Loading
+
+#### 🎯 UI Framework
+
+* **Element Plus 2.3.5**:
+  * Responsive Layout
+  * Theme Customization
+  * Internationalization
+* **Visualization**:
+  * ECharts 5.4.2
+    * Chart Components
+    * Data Visualization
+  * D3.js 7.8.5
+
+#### 🔄 Tool Chain
+
+* **Build Tools**:
+  * Vite 4.3.9
+    * Fast Hot Reload
+    * On-demand Compilation
+* **Package Management**:
+  * Node.js 16.20.1
+  * npm 8.19.4
+* **Code Quality**:
+  * ESLint 8.41.0
+  * Prettier 2.8.8
+* **Testing Framework**:
+  * Jest 29.5.0
+  * Vue Test Utils 2.3.2
+
+### 🛠️ Development & Deployment Tools
+
+#### Build Tools
+
+* **Maven 3.8.8**:
+  * Dependency Management
+  * Lifecycle Management
+  * Multi-module Builds
+* **Gradle 7.6.1** (Optional):
+  * Incremental Builds
+  * Build Cache
+
+#### Containerization
+
+* **Docker 24.0.2**:
+  * Multi-stage Builds
+  * Container Orchestration
+* **Docker Compose 2.18.1**:
+  * Service Definition
+  * Environment Configuration
+
+#### CI/CD
+
+* **Jenkins 2.401.1**:
+  * Pipeline as Code
+  * Automated Deployment
+* **Git 2.40.1**:
+  * Version Control
+  * Branch Management
+
+#### Monitoring Tools
+
+* **Spring Boot Actuator**:
+  * Health Checks
+  * Metrics Collection
+* **Prometheus + Grafana**:
+  * Performance Monitoring
+  * Visualization Dashboard
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ | MIT License</sub>
+</div> 
+
+## ⚙️ Technical Stack (English Version)
+
+### Backend Technical Details
+
+#### 🔧 Core Framework
+
+* **JDK**: Oracle JDK 11.0.21 (LTS Version)
+  * Modular System Support
+  * Enhanced String API
+  * Improved Garbage Collector
+* **Spring Ecosystem**:
+  * Spring Boot 2.7.12
+    * Auto-configuration
+    * Embedded Server (Tomcat 9.0.73)
+    * Production-ready Features
+  * Spring Framework 5.3.27
+    * IoC Container
+    * AOP Support
+    * WebMVC Framework
+  * Spring Security 5.7.8
+    * Authentication & Authorization
+    * Password Encryption (BCrypt)
+    * CORS Configuration
+  * Spring Data JPA 2.7.12
+    * Repository Pattern
+    * Dynamic Query Generation
+    * Audit Features
+
+#### 💾 Data Persistence Layer
+
+* **ORM Framework**: 
+  * Hibernate 5.6.15.Final
+    * Second-level Cache
+    * Lazy Loading
+    * Batch Processing
+* **Database**: 
+  * MySQL 8.0.33
+    * InnoDB Engine
+    * UTF8MB4 Character Set
+    * Optimized Indexes
+
+#### 🔐 Security Framework
+
+* **JWT**: jjwt 0.11.5
+  * Stateless Authentication
+  * Configurable Expiration
+  * Refresh Token Support
+* **Encryption**:
+  * BCrypt (10 Rounds)
+  * HTTPS/TLS 1.3
+* **Security Protection**:
+  * XSS Protection
+  * CSRF Protection
+  * SQL Injection Protection
+
+#### 📝 Document Processing
+
+* **Text Parsing**:
+  * JSoup 1.16.1 (HTML Parsing)
+  * Apache PDFBox 2.0.27
+  * Apache POI 5.2.3 (Office Documents)
+* **Natural Language Processing**:
+  * HanLP portable-1.8.4
+    * Chinese Word Segmentation
+    * Named Entity Recognition
+    * Keyword Extraction
+  * OpenNLP 1.9.4
+
+### Frontend Technical Details
+
+#### 🎨 Core Framework
+
+* **Vue.js 3.2.47**:
+  * Composition API
+  * Reactive System
+  * Virtual DOM
+* **State Management**:
+  * Vuex 4.0.2
+    * State Persistence
+    * Modular Management
+* **Routing**:
+  * Vue Router 4.1.6
+    * Dynamic Routing
+    * Route Guards
+    * Lazy Loading
+
+#### 🎯 UI Framework
+
+* **Element Plus 2.3.5**:
+  * Responsive Layout
+  * Theme Customization
+  * Internationalization
+* **Visualization**:
+  * ECharts 5.4.2
+    * Chart Components
+    * Data Visualization
+  * D3.js 7.8.5
+
+#### 🔄 Tool Chain
+
+* **Build Tools**:
+  * Vite 4.3.9
+    * Fast Hot Reload
+    * On-demand Compilation
+* **Package Management**:
+  * Node.js 16.20.1
+  * npm 8.19.4
+* **Code Quality**:
+  * ESLint 8.41.0
+  * Prettier 2.8.8
+* **Testing Framework**:
+  * Jest 29.5.0
+  * Vue Test Utils 2.3.2
+
+### 🛠️ Development & Deployment Tools
+
+#### Build Tools
+
+* **Maven 3.8.8**:
+  * Dependency Management
+  * Lifecycle Management
+  * Multi-module Builds
+* **Gradle 7.6.1** (Optional):
+  * Incremental Builds
+  * Build Cache
+
+#### Containerization
+
+* **Docker 24.0.2**:
+  * Multi-stage Builds
+  * Container Orchestration
+* **Docker Compose 2.18.1**:
+  * Service Definition
+  * Environment Configuration
+
+#### CI/CD
+
+* **Jenkins 2.401.1**:
+  * Pipeline as Code
+  * Automated Deployment
+* **Git 2.40.1**:
+  * Version Control
+  * Branch Management
+
+#### Monitoring Tools
+
+* **Spring Boot Actuator**:
+  * Health Checks
+  * Metrics Collection
+* **Prometheus + Grafana**:
+  * Performance Monitoring
+  * Visualization Dashboard
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ | MIT License</sub>
+</div> 
+
