@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-# 📚 NovelSight 小说智析 | Novel Assistant
+# 📚 NovelSight 小说智析 | Novel Assistant1
 
 <div align="center">
   <img src="https://img.shields.io/badge/版本-v0.9.0-blue" alt="Version">
