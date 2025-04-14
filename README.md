@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 📚 NovelSight 小说智析 | Novel Assistant1
 
 <div align="center">
@@ -41,13 +40,13 @@
 我在看小说时遇到的问题，让我决定做这个软件
 一、那些年读小说踩过的坑
 - 作为一个资深小说爱好者，我在阅读中频繁遇到这些困扰：
-- 筛选难：面对书架上几百本小说，不知道哪本 “不踩雷”——
+- 筛选难：面对书架上几百本小说，不知道哪本 "不踩雷"——
 - 简介写得天花乱坠，实际剧情拖沓、人设崩塌，比如某科幻小说前 10 章都在堆砌技术术语，主线剧情推进极慢。
-- 想找 “反套路” 小说，却只能靠网友评论盲选，耗时又低效。
+- 想找 "反套路" 小说，却只能靠网友评论盲选，耗时又低效。
 
 二、理解累：
 - 复杂世界观小说（如修真体系、星际设定），章节内容零散，看完记不住核心设定，比如某玄幻小说里 300 个门派设定，根本理不清脉络。
-- 长章节小说（如百万字网文），中间穿插大量填充内容，想跳过 “水章” 却担心错过主线，比如某历史小说每 5 章就有 2 章在描写无关的配角日常。
+- 长章节小说（如百万字网文），中间穿插大量填充内容，想跳过 "水章" 却担心错过主线，比如某历史小说每 5 章就有 2 章在描写无关的配角日常。
 -无论您是想快速了解一部新小说，还是希望深入分析您喜爱的作品，小说精读助手都能提供帮助。
 
 身为资深小说爱好者，我在阅读中频繁遇到这些困扰：
@@ -233,87 +232,145 @@
 
 ## ⚙️ 技术栈
 
-<div align="center">
-  <table>
-    <tr>
-      <th>后端</th>
-      <th>前端</th>
-      <th>数据处理</th>
-      <th>工具链</th>
-    </tr>
-    <tr>
-      <td>
-        <img src="https://img.shields.io/badge/Spring%20Boot-2.7.12-brightgreen" alt="Spring Boot"><br>
-        <img src="https://img.shields.io/badge/Spring%20Security-5.7.8-blue" alt="Spring Security"><br>
-        <img src="https://img.shields.io/badge/Spring%20Data%20JPA-2.7.12-orange" alt="Spring Data"><br>
-        <img src="https://img.shields.io/badge/Hibernate-5.6.15-red" alt="Hibernate"><br>
-        <img src="https://img.shields.io/badge/MySQL-8.0.33-blue" alt="MySQL"><br>
-        <img src="https://img.shields.io/badge/JWT-0.11.5-yellow" alt="JWT">
-      </td>
-      <td>
-        <img src="https://img.shields.io/badge/Vue.js-3.2.47-green" alt="Vue.js"><br>
-        <img src="https://img.shields.io/badge/Vuex-4.0.2-lightgreen" alt="Vuex"><br>
-        <img src="https://img.shields.io/badge/Element%20Plus-2.3.5-blue" alt="Element Plus"><br>
-        <img src="https://img.shields.io/badge/Axios-1.4.0-purple" alt="Axios"><br>
-        <img src="https://img.shields.io/badge/Vue%20Router-4.1.6-darkgreen" alt="Vue Router">
-      </td>
-      <td>
-        <img src="https://img.shields.io/badge/HanLP-portable--1.8.4-red" alt="HanLP"><br>
-        <img src="https://img.shields.io/badge/JSoup-1.16.1-lightgrey" alt="JSoup"><br>
-        <img src="https://img.shields.io/badge/ECharts-5.4.2-purple" alt="ECharts"><br>
-        <img src="https://img.shields.io/badge/EPUB%20Parser-3.1-blue" alt="EPUB Parser">
-      </td>
-      <td>
-        <img src="https://img.shields.io/badge/JDK-11.0.21-orange" alt="JDK"><br>
-        <img src="https://img.shields.io/badge/Maven-3.8.8-blueviolet" alt="Maven"><br>
-        <img src="https://img.shields.io/badge/Lombok-1.18.26-green" alt="Lombok"><br>
-        <img src="https://img.shields.io/badge/Node.js-16.20.1-darkgreen" alt="Node.js"><br>
-        <img src="https://img.shields.io/badge/npm-8.19.4-red" alt="npm">
-      </td>
-    </tr>
-  </table>
-</div>
-
 ### 后端技术详情
 
-* **基础框架**: Spring Boot 2.7.12 - 简化Spring应用开发的框架
-* **安全框架**: Spring Security 5.7.8 - 提供认证、授权和保护机制
-* **数据持久层**: 
-  * Spring Data JPA 2.7.12 - 简化数据库访问
-  * Hibernate ORM 5.6.15 - 对象关系映射框架
-  * MySQL 8.0.33 - 数据库系统
-* **API安全**: 
-  * JWT (JSON Web Token) 0.11.5 - 无状态会话管理
-  * BCrypt - 密码加密哈希算法
-* **文档解析**:
-  * JSoup 1.16.1 - HTML解析库
-  * EPUB Parser 3.1 - 电子书格式解析
-* **自然语言处理**: 
-  * HanLP portable-1.8.4 - 汉语言处理包
-  * 自定义分词和摘要算法
+#### 🔧 核心框架
+* **JDK**: Oracle JDK 11.0.21 (LTS版本)
+  * 支持模块化系统
+  * 增强型字符串API
+  * 改进的垃圾收集器
+* **Spring生态系统**:
+  * Spring Boot 2.7.12
+    * 自动配置
+    * 嵌入式服务器 (Tomcat 9.0.73)
+    * 生产就绪功能
+  * Spring Framework 5.3.27
+    * IoC容器
+    * AOP支持
+    * WebMVC框架
+  * Spring Security 5.7.8
+    * 认证和授权
+    * 密码加密 (BCrypt)
+    * CORS配置
+  * Spring Data JPA 2.7.12
+    * Repository模式
+    * 动态查询生成
+    * 审计功能
+
+#### 💾 数据持久层
+* **ORM框架**: 
+  * Hibernate 5.6.15.Final
+    * 二级缓存
+    * 延迟加载
+    * 批量处理
+* **数据库**: 
+  * MySQL 8.0.33
+    * InnoDB引擎
+    * UTF8MB4字符集
+    * 优化索引
+
+#### 🔐 安全框架
+* **JWT**: jjwt 0.11.5
+  * 无状态认证
+  * 可配置过期时间
+  * 刷新令牌支持
+* **加密算法**:
+  * BCrypt (10轮加密)
+  * HTTPS/TLS 1.3
+* **安全防护**:
+  * XSS防护
+  * CSRF防护
+  * SQL注入防护
+
+#### 📝 文档处理
+* **文本解析**:
+  * JSoup 1.16.1 (HTML解析)
+  * Apache PDFBox 2.0.27
+  * Apache POI 5.2.3 (Office文档)
+* **自然语言处理**:
+  * HanLP portable-1.8.4
+    * 中文分词
+    * 命名实体识别
+    * 关键词提取
+  * OpenNLP 1.9.4
 
 ### 前端技术详情
 
-* **核心框架**: 
-  * Vue.js 3.2.47 - 渐进式JavaScript框架
-  * Vuex 4.0.2 - 状态管理模式和库
-* **UI组件**: 
-  * Element Plus 2.3.5 - 基于Vue的桌面端组件库
-  * 自定义组件和样式
-* **路由**: Vue Router 4.1.6 - 官方路由管理器
-* **HTTP客户端**: Axios 1.4.0 - 基于promise的HTTP客户端
-* **可视化**: ECharts 5.4.2 - 数据可视化库
+#### 🎨 核心框架
+* **Vue.js 3.2.47**:
+  * Composition API
+  * 响应式系统
+  * 虚拟DOM
+* **状态管理**:
+  * Vuex 4.0.2
+    * 状态持久化
+    * 模块化管理
+* **路由管理**:
+  * Vue Router 4.1.6
+    * 动态路由
+    * 路由守卫
+    * 懒加载
 
-### 开发环境与工具
+#### 🎯 UI框架
+* **Element Plus 2.3.5**:
+  * 响应式布局
+  * 主题定制
+  * 国际化支持
+* **可视化**:
+  * ECharts 5.4.2
+    * 图表组件
+    * 数据可视化
+  * D3.js 7.8.5
 
-* **JDK**: Oracle JDK 11.0.21 (LTS版本)
-* **构建工具**: Apache Maven 3.8.8
-* **前端包管理**: Node.js 16.20.1 + npm 8.19.4
-* **开发工具**: 
-  * IntelliJ IDEA 2023.1 - 后端开发
-  * Visual Studio Code 1.82.0 - 前端开发
-* **代码简化**: Lombok 1.18.26 - 减少Java模板代码
-* **版本控制**: Git 2.40.1
+#### 🔄 工具链
+* **构建工具**:
+  * Vite 4.3.9
+    * 快速热重载
+    * 按需编译
+* **包管理**:
+  * Node.js 16.20.1
+  * npm 8.19.4
+* **代码质量**:
+  * ESLint 8.41.0
+  * Prettier 2.8.8
+* **测试框架**:
+  * Jest 29.5.0
+  * Vue Test Utils 2.3.2
+
+### 🛠️ 开发与部署工具
+
+#### 构建工具
+* **Maven 3.8.8**:
+  * 依赖管理
+  * 生命周期管理
+  * 多模块构建
+* **Gradle 7.6.1** (可选):
+  * 增量构建
+  * 构建缓存
+
+#### 容器化
+* **Docker 24.0.2**:
+  * 多阶段构建
+  * 容器编排
+* **Docker Compose 2.18.1**:
+  * 服务定义
+  * 环境配置
+
+#### CI/CD
+* **Jenkins 2.401.1**:
+  * 流水线即代码
+  * 自动化部署
+* **Git 2.40.1**:
+  * 版本控制
+  * 分支管理
+
+#### 监控工具
+* **Spring Boot Actuator**:
+  * 健康检查
+  * 指标收集
+* **Prometheus + Grafana**:
+  * 性能监控
+  * 可视化面板
 
 ## 🏗️ 系统架构
 
@@ -354,8 +411,6 @@ mysql -u root -p < sql/sample_data.sql
 <details>
 <summary><b>2. 配置后端</b></summary>
 
-<<<<<<< HEAD
-=======
 2. **配置后端**
 ```bash
 cd backend
@@ -373,8 +428,6 @@ mvn spring-boot:run
 <details>
 <summary><b>4. 安装和启动前端</b></summary>
 
-<<<<<<< HEAD
-=======
 4. **安装和启动前端**
 ```bash
 cd ../frontend
@@ -467,4 +520,152 @@ npm run serve
 
 <div align="center">
   <sub>用❤️构建 | MIT许可证</sub>
+</div>
+
+## ⚙️ Technical Stack (English Version)
+
+### Backend Technical Details
+
+#### 🔧 Core Framework
+* **JDK**: Oracle JDK 11.0.21 (LTS Version)
+  * Modular System Support
+  * Enhanced String API
+  * Improved Garbage Collector
+* **Spring Ecosystem**:
+  * Spring Boot 2.7.12
+    * Auto-configuration
+    * Embedded Server (Tomcat 9.0.73)
+    * Production-ready Features
+  * Spring Framework 5.3.27
+    * IoC Container
+    * AOP Support
+    * WebMVC Framework
+  * Spring Security 5.7.8
+    * Authentication & Authorization
+    * Password Encryption (BCrypt)
+    * CORS Configuration
+  * Spring Data JPA 2.7.12
+    * Repository Pattern
+    * Dynamic Query Generation
+    * Audit Features
+
+#### 💾 Data Persistence Layer
+* **ORM Framework**: 
+  * Hibernate 5.6.15.Final
+    * Second-level Cache
+    * Lazy Loading
+    * Batch Processing
+* **Database**: 
+  * MySQL 8.0.33
+    * InnoDB Engine
+    * UTF8MB4 Character Set
+    * Optimized Indexes
+
+#### 🔐 Security Framework
+* **JWT**: jjwt 0.11.5
+  * Stateless Authentication
+  * Configurable Expiration
+  * Refresh Token Support
+* **Encryption**:
+  * BCrypt (10 Rounds)
+  * HTTPS/TLS 1.3
+* **Security Protection**:
+  * XSS Protection
+  * CSRF Protection
+  * SQL Injection Protection
+
+#### 📝 Document Processing
+* **Text Parsing**:
+  * JSoup 1.16.1 (HTML Parsing)
+  * Apache PDFBox 2.0.27
+  * Apache POI 5.2.3 (Office Documents)
+* **Natural Language Processing**:
+  * HanLP portable-1.8.4
+    * Chinese Word Segmentation
+    * Named Entity Recognition
+    * Keyword Extraction
+  * OpenNLP 1.9.4
+
+### Frontend Technical Details
+
+#### 🎨 Core Framework
+* **Vue.js 3.2.47**:
+  * Composition API
+  * Reactive System
+  * Virtual DOM
+* **State Management**:
+  * Vuex 4.0.2
+    * State Persistence
+    * Modular Management
+* **Routing**:
+  * Vue Router 4.1.6
+    * Dynamic Routing
+    * Route Guards
+    * Lazy Loading
+
+#### 🎯 UI Framework
+* **Element Plus 2.3.5**:
+  * Responsive Layout
+  * Theme Customization
+  * Internationalization
+* **Visualization**:
+  * ECharts 5.4.2
+    * Chart Components
+    * Data Visualization
+  * D3.js 7.8.5
+
+#### 🔄 Tool Chain
+* **Build Tools**:
+  * Vite 4.3.9
+    * Fast Hot Reload
+    * On-demand Compilation
+* **Package Management**:
+  * Node.js 16.20.1
+  * npm 8.19.4
+* **Code Quality**:
+  * ESLint 8.41.0
+  * Prettier 2.8.8
+* **Testing Framework**:
+  * Jest 29.5.0
+  * Vue Test Utils 2.3.2
+
+### 🛠️ Development & Deployment Tools
+
+#### Build Tools
+* **Maven 3.8.8**:
+  * Dependency Management
+  * Lifecycle Management
+  * Multi-module Builds
+* **Gradle 7.6.1** (Optional):
+  * Incremental Builds
+  * Build Cache
+
+#### Containerization
+* **Docker 24.0.2**:
+  * Multi-stage Builds
+  * Container Orchestration
+* **Docker Compose 2.18.1**:
+  * Service Definition
+  * Environment Configuration
+
+#### CI/CD
+* **Jenkins 2.401.1**:
+  * Pipeline as Code
+  * Automated Deployment
+* **Git 2.40.1**:
+  * Version Control
+  * Branch Management
+
+#### Monitoring Tools
+* **Spring Boot Actuator**:
+  * Health Checks
+  * Metrics Collection
+* **Prometheus + Grafana**:
+  * Performance Monitoring
+  * Visualization Dashboard
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ | MIT License</sub>
 </div> 
