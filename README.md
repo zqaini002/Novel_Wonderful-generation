@@ -18,6 +18,7 @@
   </p>
 # NovelSight 小说智析 (Novel Assistant)
 
+
 <div align="center">
     <p>
         <strong>AI驱动的小说内容分析与摘要生成系统</strong>
@@ -32,31 +33,37 @@
 </div>
 
 
+
 ## 🌟 项目简介
 
 > **让小说阅读更高效，内容理解更深入**
 
 ### 💬 那些年读小说踩过的坑
+
 我在看小说时遇到的问题，让我决定做这个软件
 一、那些年读小说踩过的坑
+
 - 作为一个资深小说爱好者，我在阅读中频繁遇到这些困扰：
 - 筛选难：面对书架上几百本小说，不知道哪本 "不踩雷"——
 - 简介写得天花乱坠，实际剧情拖沓、人设崩塌，比如某科幻小说前 10 章都在堆砌技术术语，主线剧情推进极慢。
 - 想找 "反套路" 小说，却只能靠网友评论盲选，耗时又低效。
 
 二、理解累：
+
 - 复杂世界观小说（如修真体系、星际设定），章节内容零散，看完记不住核心设定，比如某玄幻小说里 300 个门派设定，根本理不清脉络。
 - 长章节小说（如百万字网文），中间穿插大量填充内容，想跳过 "水章" 却担心错过主线，比如某历史小说每 5 章就有 2 章在描写无关的配角日常。
--无论您是想快速了解一部新小说，还是希望深入分析您喜爱的作品，小说精读助手都能提供帮助。
+  -无论您是想快速了解一部新小说，还是希望深入分析您喜爱的作品，小说精读助手都能提供帮助。
 
 身为资深小说爱好者，我在阅读中频繁遇到这些困扰：
 
 #### 📋 筛选困难
+
 - 面对书架上几百本小说，不知道哪本"不踩雷"
 - 简介写得天花乱坠，实际剧情拖沓、人设崩塌
 - 想找"反套路"小说，却只能靠网友评论盲选，耗时又低效
 
 #### 📖 理解费力
+
 - 复杂世界观小说（如修真体系、星际设定），章节内容零散，理不清核心设定
 - 长篇小说中穿插大量填充内容，想跳过"水章"却担心错过主线剧情
 
@@ -72,12 +79,13 @@
 | **16:00-17:30** | 增强错误处理和日志记录<br>添加API响应调试功能<br>实现数据模型默认值设置 | ✅ |
 
 ### 2025年4月14日
-| 时间 | 工作内容 | 状态 |
-|------|---------|------|
-| **09:30-11:30** | 解决Spring Security循环依赖问题<br>修复AccessDeniedException错误 | ✅ |
-| **13:00-15:00** | 完善管理员仪表盘路由配置<br>创建NovelManagementView和SystemLogsView组件<br>修复ESLint错误，优化代码结构 | ✅ |
-| **15:30-17:30** | 实现用户登录状态管理和动态显示<br>优化Vuex存储，改进组件显示<br>完善登录流程，基于角色跳转 | ✅ |
-| **17:30-18:00** | 代码优化与清理<br>美化登录按钮和用户下拉菜单样式 | ✅ |
+
+| 时间            | 工作内容                                                     | 状态 |
+| --------------- | ------------------------------------------------------------ | ---- |
+| **09:30-11:30** | 解决Spring Security循环依赖问题<br>修复AccessDeniedException错误 | ✅    |
+| **13:00-15:00** | 完善管理员仪表盘路由配置<br>创建NovelManagementView和SystemLogsView组件<br>修复ESLint错误，优化代码结构 | ✅    |
+| **15:30-17:30** | 实现用户登录状态管理和动态显示<br>优化Vuex存储，改进组件显示<br>完善登录流程，基于角色跳转 | ✅    |
+| **17:30-18:00** | 代码优化与清理<br>美化登录按钮和用户下拉菜单样式             | ✅    |
 
 ## 📊 项目进度
 
@@ -142,6 +150,7 @@
     </td>
   </tr>
 </table>
+
 
 ### 🔄 待完成内容
 
@@ -218,25 +227,30 @@
   </tr>
 </table>
 
+
 ## 💡 核心功能
 
 
 ### 🔍 自动化文本处理
+
 - 🗃️ **多源输入**: 支持TXT、EPUB格式文件上传和网页链接解析
 - 📑 **章节识别**: 自动识别章节标题，提取正文内容，过滤广告
 - 🔄 **批量处理**: 支持批量导入和处理多部小说
 
 ### 📝 智能摘要生成
+
 - 📌 **分层摘要**: 提供章节摘要、情节脉络图和全书概述
 - 🧠 **内容理解**: 通过自然语言处理理解小说情节和主题
 - 📊 **结构化输出**: 将非结构化文本转换为结构化信息
 
 ### 📈 数据可视化分析
+
 - ☁️ **关键词云**: 直观展示小说关键词和核心概念
 - 📉 **情节波动图**: 图形化展示故事情节起伏变化
 - 🔬 **多维度分析**: 从多个角度分析小说风格和特点
 
 ### 🏷️ 个性化标签系统
+
 - 👍 **推荐标签**: 突出小说的积极特点
 - ⚠️ **避雷标签**: 提示小说的潜在问题
 - 🚪 **阅读门槛**: 说明阅读所需的前置知识
@@ -246,7 +260,12 @@
 ### 后端技术详情
 
 #### 🔧 核心框架
+<<<<<<< HEAD
 * **JDK**: Oracle JDK 17 (LTS版本)
+=======
+
+* **JDK**: Oracle JDK 11.0.21 (LTS版本)
+>>>>>>> e765aaea91b3d7c00d44675925b1b6f6bb5af2c0
   * 支持模块化系统
   * 增强型字符串API
   * 改进的垃圾收集器
@@ -271,6 +290,7 @@
     * 审计功能
 
 #### 💾 数据持久层
+
 * **ORM框架**: 
   * Hibernate 6.4.x
     * 二级缓存
@@ -283,7 +303,12 @@
     * 优化索引
 
 #### 🔐 安全框架
+<<<<<<< HEAD
 * **JWT**: jjwt 0.12.3
+=======
+
+* **JWT**: jjwt 0.11.5
+>>>>>>> e765aaea91b3d7c00d44675925b1b6f6bb5af2c0
   * 无状态认证
   * 可配置过期时间
   * 刷新令牌支持
@@ -296,6 +321,7 @@
   * SQL注入防护
 
 #### 📝 文档处理
+
 * **文本解析**:
   * JSoup 1.16.2 (HTML解析)
   * Apache PDFBox 3.0.1
@@ -310,6 +336,7 @@
 ### 前端技术详情
 
 #### 🎨 核心框架
+
 * **Vue.js 3.2.47**:
   * Composition API
   * 响应式系统
@@ -325,6 +352,7 @@
     * 懒加载
 
 #### 🎯 UI框架
+
 * **Element Plus 2.3.5**:
   * 响应式布局
   * 主题定制
@@ -336,6 +364,7 @@
   * D3.js 7.8.5
 
 #### 🔄 工具链
+
 * **构建工具**:
   * Vite 4.3.9
     * 快速热重载
@@ -353,6 +382,7 @@
 ### 🛠️ 开发与部署工具
 
 #### 构建工具
+
 * **Maven 3.8.8**:
   * 依赖管理
   * 生命周期管理
@@ -362,6 +392,7 @@
   * 构建缓存
 
 #### 容器化
+
 * **Docker 24.0.2**:
   * 多阶段构建
   * 容器编排
@@ -370,6 +401,7 @@
   * 环境配置
 
 #### CI/CD
+
 * **Jenkins 2.401.1**:
   * 流水线即代码
   * 自动化部署
@@ -378,6 +410,7 @@
   * 分支管理
 
 #### 监控工具
+
 * **Spring Boot Actuator**:
   * 健康检查
   * 指标收集
@@ -404,6 +437,7 @@ graph TD
 ## 🚀 快速开始
 
 ### 📋 系统要求
+
 - ☕ Java 11.0+ (推荐使用JDK 11.0.21)
 - 🟢 Node.js 16+ (推荐使用16.20.1)
 - 🐬 MySQL 8.0+
@@ -418,8 +452,11 @@ graph TD
 # 创建数据库和表结构
 mysql -u root -p < sql/schema.sql
 
+
 # 可选：导入示例数据
+
 mysql -u root -p < sql/sample_data.sql
+
 ```
 <details>
 <summary><b>2. 配置后端</b></summary>
@@ -430,6 +467,7 @@ cd backend
 # 修改application.properties中的数据库连接信息
 mvn clean install
 ```
+
 </details>
 
 <details>
@@ -441,16 +479,20 @@ mvn spring-boot:run
 <details>
 <summary><b>4. 安装和启动前端</b></summary>
 
+
 4. **安装和启动前端**
+
 ```bash
 cd ../frontend
 npm install
 npm run serve
 ```
+
 <details>
 <summary><b>5. 访问应用</b></summary>
 打开浏览器访问 http://localhost:8081
 📱 使用流程
+
 
 <div align="center">
   <table>
@@ -471,6 +513,7 @@ npm run serve
   </table>
 </div>
 
+
 ## 🎯 性能指标
 
 - 📦 支持单文件最大**150MB** (约300万字)
@@ -478,7 +521,9 @@ npm run serve
 - 📈 摘要准确率: **>85%** (基于人工评估)
 
 ## 🔮 版本历史
+
 5. 打开浏览器访问 `http://localhost:8081`
+
 - **v0.9.0** (2025-04-14): 基础版发布
   - 完成基础架构搭建
     - 后端: Spring Boot 2.7.12 + Spring Security 5.7.8 + JPA
@@ -517,11 +562,13 @@ npm run serve
 - 前端代码遵循Vue.js风格指南
 
 ## 📜 许可证
+
 ## 版本历史
 
 - **v0.9.0** (2025-04-14): 基础版发布
 
 ## 许可证
+
 本项目采用MIT许可证。详见 [LICENSE](LICENSE) 文件。
 
 ## 📞 联系方式
@@ -529,18 +576,25 @@ npm run serve
 - 项目维护者: [七七](mailto:tanqi03@126.com)
 
 - 项目维护者: [七七](tanqi03@126.com)
+
 ---
 
 <div align="center">
   <sub>用❤️构建 | MIT许可证</sub>
 </div>
 
+
 ## ⚙️ Technical Stack (English Version)
 
 ### Backend Technical Details
 
 #### 🔧 Core Framework
+<<<<<<< HEAD
 * **JDK**: Oracle JDK 17 (LTS Version)
+=======
+
+* **JDK**: Oracle JDK 11.0.21 (LTS Version)
+>>>>>>> e765aaea91b3d7c00d44675925b1b6f6bb5af2c0
   * Modular System Support
   * Enhanced String API
   * Improved Garbage Collector
@@ -565,6 +619,7 @@ npm run serve
     * Audit Features
 
 #### 💾 Data Persistence Layer
+
 * **ORM Framework**: 
   * Hibernate 6.4.x
     * Second-level Cache
@@ -577,7 +632,12 @@ npm run serve
     * Optimized Indexes
 
 #### 🔐 Security Framework
+<<<<<<< HEAD
 * **JWT**: jjwt 0.12.3
+=======
+
+* **JWT**: jjwt 0.11.5
+>>>>>>> e765aaea91b3d7c00d44675925b1b6f6bb5af2c0
   * Stateless Authentication
   * Configurable Expiration
   * Refresh Token Support
@@ -590,6 +650,7 @@ npm run serve
   * SQL Injection Protection
 
 #### 📝 Document Processing
+
 * **Text Parsing**:
   * JSoup 1.16.2 (HTML Parsing)
   * Apache PDFBox 3.0.1
@@ -604,6 +665,7 @@ npm run serve
 ### Frontend Technical Details
 
 #### 🎨 Core Framework
+
 * **Vue.js 3.2.47**:
   * Composition API
   * Reactive System
@@ -619,6 +681,7 @@ npm run serve
     * Lazy Loading
 
 #### 🎯 UI Framework
+
 * **Element Plus 2.3.5**:
   * Responsive Layout
   * Theme Customization
@@ -630,6 +693,7 @@ npm run serve
   * D3.js 7.8.5
 
 #### 🔄 Tool Chain
+
 * **Build Tools**:
   * Vite 4.3.9
     * Fast Hot Reload
@@ -647,6 +711,7 @@ npm run serve
 ### 🛠️ Development & Deployment Tools
 
 #### Build Tools
+
 * **Maven 3.8.8**:
   * Dependency Management
   * Lifecycle Management
@@ -656,6 +721,7 @@ npm run serve
   * Build Cache
 
 #### Containerization
+
 * **Docker 24.0.2**:
   * Multi-stage Builds
   * Container Orchestration
@@ -664,6 +730,7 @@ npm run serve
   * Environment Configuration
 
 #### CI/CD
+
 * **Jenkins 2.401.1**:
   * Pipeline as Code
   * Automated Deployment
@@ -672,6 +739,7 @@ npm run serve
   * Branch Management
 
 #### Monitoring Tools
+
 * **Spring Boot Actuator**:
   * Health Checks
   * Metrics Collection
@@ -684,3 +752,4 @@ npm run serve
 <div align="center">
   <sub>Built with ❤️ | MIT License</sub>
 </div> 
+
