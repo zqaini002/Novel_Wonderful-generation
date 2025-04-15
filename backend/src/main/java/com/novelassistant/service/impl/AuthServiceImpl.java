@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import com.novelassistant.security.services.UserDetailsImpl;
 import com.novelassistant.service.AuthService;
 import com.novelassistant.util.AuthenticationLogger;
 import com.novelassistant.util.LogUtil;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -102,7 +102,9 @@ public class AuthServiceImpl implements AuthService {
                     userDetails.getUsername(), 
                     userDetails.getEmail(),
                     userDetails.getNickname(),
-                    roles);
+                    roles,
+                    user.getCreatedAt(),
+                    user.getLastLoginAt());
         } catch (BadCredentialsException e) {
             logger.error("用户 {} 认证失败: {}", loginRequest.getUsername(), e.getMessage());
             throw e;

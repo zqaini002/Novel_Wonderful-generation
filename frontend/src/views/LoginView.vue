@@ -3,7 +3,7 @@
     <div class="login-card">
       <div class="login-header">
         <h2>登录</h2>
-        <p>欢迎回来！登录您的账户以继续使用小说精读助手。</p>
+        <p>欢迎回来！登录您的账户以继续使用小说智析。</p>
       </div>
       
       <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" label-position="top">
@@ -20,21 +20,27 @@
         <el-form-item label="用户名" prop="username">
           <el-input 
             v-model="loginForm.username" 
-            prefix-icon="el-icon-user"
             placeholder="请输入用户名" 
             clearable
-          />
+          >
+            <template #prefix>
+              <el-icon><user /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
         
         <el-form-item label="密码" prop="password">
           <el-input 
             v-model="loginForm.password" 
-            prefix-icon="el-icon-lock"
             placeholder="请输入密码"
             type="password" 
             show-password
             clearable
-          />
+          >
+            <template #prefix>
+              <el-icon><lock /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
         
         <div class="login-actions">
@@ -65,17 +71,23 @@
 <script>
 import { ref, reactive } from 'vue'
 import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { User, Lock } from '@element-plus/icons-vue'
 
 export default {
   name: 'LoginView',
+  components: {
+    User,
+    Lock
+  },
   setup() {
     const store = useStore()
     const router = useRouter()
+    const route = useRoute()
     const loginFormRef = ref(null)
     
-    const formState = reactive({
+    const loginForm = reactive({
       username: '',
       password: ''
     })
@@ -96,39 +108,45 @@ export default {
     }
     
     const handleLogin = () => {
-      loginFormRef.value.validate(valid => {
+      loginFormRef.value.validate((valid) => {
         if (valid) {
           loading.value = true
           errorMessage.value = ''
           
-          store.dispatch('auth/login', {
-            username: formState.username,
-            password: formState.password
-          })
-          .then((response) => {
-            console.log('登录成功，用户信息:', response)
+          const loginData = {
+            username: loginForm.username,
+            password: loginForm.password
+          };
+          
+          store.dispatch('auth/login', loginData)
+          .then(() => {
             ElMessage.success('登录成功!')
             
             // 获取用户信息
-            const user = store.state.auth.user
+            const user = store.getters['auth/currentUser']
+            
+            // 检查是否有重定向地址
+            const redirectPath = route.query.redirect;
             
             // 根据用户角色决定跳转页面
             if (user && user.roles) {
+              // 如果有重定向地址则使用重定向地址
+              if (redirectPath) {
+                router.push(redirectPath);
+              } 
               // 如果用户是管理员，跳转到管理员仪表盘
-              if (user.roles.includes('ROLE_ADMIN')) {
-                console.log('管理员登录成功，跳转到仪表盘')
+              else if (user.roles.includes('ROLE_ADMIN')) {
                 router.push('/admin/dashboard')
               } else {
                 // 普通用户跳转到首页
                 router.push('/')
               }
             } else {
-              // 角色信息不存在，跳转到首页
-              router.push('/')
+              // 角色信息不存在，跳转到首页或重定向页面
+              router.push(redirectPath || '/')
             }
           })
           .catch(error => {
-            console.error('登录失败:', error)
             errorMessage.value = error.response?.data?.message || '登录失败，请检查用户名和密码'
           })
           .finally(() => {
@@ -141,7 +159,7 @@ export default {
     }
     
     return {
-      loginForm: formState,
+      loginForm,
       loginRules,
       rememberMe,
       loading,

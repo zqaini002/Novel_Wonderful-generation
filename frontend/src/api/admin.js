@@ -4,12 +4,12 @@ import apiClient from './api';
 const adminService = {
   // 获取仪表盘统计数据
   async getDashboardStats() {
-    return apiClient.get('/api/admin/dashboard');
+    return apiClient.get('/admin/dashboard');
   },
 
   // 获取所有用户列表
   async getAllUsers() {
-    return apiClient.get('/api/admin/users');
+    return apiClient.get('/admin/users');
   },
 
   // 获取用户详情
@@ -17,7 +17,7 @@ const adminService = {
     if (!userId) {
       throw new Error('用户ID不能为空');
     }
-    return apiClient.get(`/api/admin/users/${userId}`);
+    return apiClient.get(`/admin/users/${userId}`);
   },
 
   // 修改用户状态（启用/禁用）
@@ -25,7 +25,7 @@ const adminService = {
     if (!userId) {
       throw new Error('用户ID不能为空');
     }
-    return apiClient.put(`/api/admin/users/${userId}/status?enabled=${enabled}`);
+    return apiClient.put(`/admin/users/${userId}/status?enabled=${enabled}`);
   },
 
   // 删除用户
@@ -33,12 +33,12 @@ const adminService = {
     if (!userId) {
       throw new Error('用户ID不能为空');
     }
-    return apiClient.delete(`/api/admin/users/${userId}`);
+    return apiClient.delete(`/admin/users/${userId}`);
   },
 
   // 获取所有小说列表（管理员视图）
   async getAllNovels() {
-    return apiClient.get('/api/admin/novels');
+    return apiClient.get('/admin/novels');
   },
 
   // 删除小说
@@ -46,17 +46,17 @@ const adminService = {
     if (!novelId) {
       throw new Error('小说ID不能为空');
     }
-    return apiClient.delete(`/api/admin/novels/${novelId}`);
+    return apiClient.delete(`/admin/novels/${novelId}`);
   },
 
   // 获取系统日志
   async getSystemLogs(page = 0, size = 20) {
-    return apiClient.get(`/api/admin/logs?page=${page}&size=${size}`);
+    return apiClient.get(`/admin/logs?page=${page}&size=${size}`);
   },
 
   // 清理系统缓存
   async clearSystemCache() {
-    return apiClient.post('/api/admin/cache/clear');
+    return apiClient.post('/admin/cache/clear');
   }
 };
 

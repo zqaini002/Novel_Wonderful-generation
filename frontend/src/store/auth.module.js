@@ -1,11 +1,18 @@
 import authService from '../api/auth';
 
 // 从localStorage获取用户信息
-const user = JSON.parse(localStorage.getItem('user'));
+const userStr = localStorage.getItem('user');
+let initialUser = null;
+
+try {
+  initialUser = userStr ? JSON.parse(userStr) : null;
+} catch (e) {
+  // 解析失败时不设置初始用户
+}
 
 // 初始状态
-const initialState = user
-  ? { status: { loggedIn: true }, user }
+const initialState = initialUser
+  ? { status: { loggedIn: true }, user: initialUser }
   : { status: { loggedIn: false }, user: null };
 
 export const auth = {
@@ -15,9 +22,18 @@ export const auth = {
     // 登录
     async login({ commit }, user) {
       try {
+        // 调用登录服务
         const response = await authService.login(user.username, user.password);
+        
+        // 确保响应中包含必要的字段
+        if (!response || (!response.token && !response.accessToken)) {
+          throw new Error('登录响应格式错误');
+        }
+        
+        // 登录成功，提交mutation
         commit('loginSuccess', response);
-        return Promise.resolve(response);
+        
+        return response;
       } catch (error) {
         commit('loginFailure');
         return Promise.reject(error);
@@ -45,6 +61,11 @@ export const auth = {
     // 刷新令牌
     async refreshToken({ commit }, accessToken) {
       commit('refreshToken', accessToken);
+    },
+    
+    // 更新用户资料
+    async updateProfile({ commit }, userData) {
+      commit('updateUserProfile', userData);
     }
   },
   
@@ -81,6 +102,20 @@ export const auth = {
     refreshToken(state, accessToken) {
       state.status.loggedIn = true;
       state.user = { ...state.user, accessToken };
+    },
+    
+    // 更新用户资料
+    updateUserProfile(state, userData) {
+      if (state.user) {
+        // 更新状态中的用户信息
+        state.user = {
+          ...state.user,
+          ...userData
+        };
+        
+        // 同时更新localStorage中的用户信息
+        localStorage.setItem('user', JSON.stringify(state.user));
+      }
     }
   },
   

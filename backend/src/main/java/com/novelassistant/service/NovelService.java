@@ -59,4 +59,11 @@ public interface NovelService {
      * @return 标签列表
      */
     List<Tag> getTagsByNovelId(Long novelId);
+    
+    /**
+     * 根据用户ID获取小说列表
+     * @param userId 用户ID
+     * @return 该用户上传的小说列表
+     */
+    List<Novel> getNovelsByUserId(Long userId);
 } 

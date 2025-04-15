@@ -9,13 +9,14 @@
           <el-upload
             class="upload-dragger"
             drag
-            action="#"
+            action=""
             :auto-upload="false"
             :on-change="handleFileChange"
             :limit="1"
             :file-list="fileList"
-            :multiple="false">
-            <i class="el-icon-upload"></i>
+            :multiple="false"
+            ref="uploadRef">
+            <el-icon><upload-filled /></el-icon>
             <div class="el-upload__text">拖拽文件到此处或 <em>点击上传</em></div>
             <template #tip>
               <div class="el-upload__tip">
@@ -82,9 +83,13 @@ import { defineComponent, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
+import { UploadFilled } from '@element-plus/icons-vue'
 
 export default defineComponent({
   name: 'UploadView',
+  components: {
+    UploadFilled
+  },
   setup() {
     const router = useRouter()
     const store = useStore()
@@ -93,6 +98,7 @@ export default defineComponent({
     const activeTab = ref('file')
     
     // 文件上传相关
+    const uploadRef = ref(null)
     const fileList = ref([])
     const uploadForm = reactive({
       title: '',
@@ -118,11 +124,12 @@ export default defineComponent({
     }
     
     // 文件变更处理
-    const handleFileChange = (file) => {
-      fileList.value = [file]
+    const handleFileChange = (file, uploadedFileList) => {
+      // 更新文件列表引用
+      fileList.value = uploadedFileList;
       
       // 尝试从文件名中提取标题
-      if (file.name && !uploadForm.title) {
+      if (file && file.name && !uploadForm.title) {
         const fileName = file.name.replace(/\.(txt|epub)$/i, '')
         uploadForm.title = fileName
       }
@@ -132,7 +139,7 @@ export default defineComponent({
     const handleSubmit = () => {
       if (activeTab.value === 'file') {
         // 验证文件上传表单
-        if (!fileList.value.length) {
+        if (!fileList.value || fileList.value.length === 0) {
           ElMessage.warning('请上传小说文件')
           return
         }
@@ -167,34 +174,51 @@ export default defineComponent({
       loading.value = true
       
       try {
-        // 准备上传参数
-        const params = activeTab.value === 'file' 
-          ? { 
-              file: fileList.value[0].raw, 
-              title: uploadForm.title,
-              author: uploadForm.author
-            }
-          : { 
-              url: urlForm.url, 
-              title: urlForm.title,
-              author: urlForm.author
-            };
+        let formData = new FormData();
+        
+        if (activeTab.value === 'file') {
+          // 确保文件列表存在并且有文件
+          if (!fileList.value || fileList.value.length === 0) {
+            throw new Error('未找到上传文件');
+          }
+          
+          // 获取文件对象 - 使用element-plus的文件对象
+          const fileObj = fileList.value[0];
+          
+          // element-plus 中文件对象的raw属性包含真实文件
+          if (!fileObj || !fileObj.raw) {
+            throw new Error('无法获取文件对象，请重新选择文件');
+          }
+          
+          formData.append('file', fileObj.raw);
+          formData.append('title', uploadForm.title);
+          if (uploadForm.author) {
+            formData.append('author', uploadForm.author);
+          }
+        } else {
+          // URL上传
+          formData.append('url', urlForm.url);
+          formData.append('title', urlForm.title);
+          if (urlForm.author) {
+            formData.append('author', urlForm.author);
+          }
+        }
         
         // 使用API上传
-        await store.dispatch('uploadNovel', params)
+        await store.dispatch('uploadNovel', formData);
         
-        ElMessage.success('提交成功，正在处理中...')
-        router.push('/analyze')
+        ElMessage.success('提交成功，正在处理中...');
+        router.push('/analyze');
       } catch (error) {
-        ElMessage.error('提交失败，请重试: ' + error.message)
-        console.error(error)
+        ElMessage.error('提交失败，请重试: ' + (error.message || '未知错误'));
       } finally {
-        loading.value = false
+        loading.value = false;
       }
     }
     
     return {
       activeTab,
+      uploadRef,
       fileList,
       uploadForm,
       urlForm,

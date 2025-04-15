@@ -3,7 +3,7 @@
     <div class="register-card">
       <div class="register-header">
         <h2>注册账号</h2>
-        <p>加入小说精读助手，开始您的阅读之旅。</p>
+        <p>加入小说智析，开始您的阅读之旅。</p>
       </div>
       
       <el-form ref="registerFormRef" :model="registerForm" :rules="registerRules" label-position="top">

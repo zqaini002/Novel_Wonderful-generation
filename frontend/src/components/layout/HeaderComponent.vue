@@ -10,7 +10,7 @@
         <router-link to="/">
           <div class="logo-content">
             <el-icon class="logo-icon"><Reading /></el-icon>
-            <h1>小说精读助手</h1>
+            <h1>小说智析</h1>
           </div>
         </router-link>
       </div>
@@ -37,11 +37,11 @@
           </div>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item>
+              <el-dropdown-item @click="goToProfile">
                 <el-icon><User /></el-icon>
                 <span>个人中心</span>
               </el-dropdown-item>
-              <el-dropdown-item>
+              <el-dropdown-item @click="goToMyNovels">
                 <el-icon><Collection /></el-icon>
                 <span>我的小说</span>
               </el-dropdown-item>
@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, watch, onMounted } from 'vue'
+import { defineComponent, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute, useRouter } from 'vue-router'
 import { 
@@ -169,22 +169,16 @@ export default defineComponent({
     const goToDashboard = () => {
       router.push('/admin/dashboard')
     }
-
-    // 监听登录状态变化
-    watch(isLoggedIn, (newValue) => {
-      console.log('登录状态变化:', newValue ? '已登录' : '未登录')
-      if (newValue) {
-        console.log('当前用户:', currentUser.value)
-      }
-    }, { immediate: true })
     
-    // 挂载时检查登录状态
-    onMounted(() => {
-      console.log('HeaderComponent挂载，登录状态:', isLoggedIn.value)
-      if (isLoggedIn.value) {
-        console.log('当前用户:', currentUser.value)
-      }
-    })
+    // 跳转到个人中心
+    const goToProfile = () => {
+      router.push('/profile')
+    }
+
+    // 跳转到我的小说
+    const goToMyNovels = () => {
+      router.push('/my-novels')
+    }
     
     return {
       activeIndex,
@@ -195,7 +189,9 @@ export default defineComponent({
       login,
       register,
       logout,
-      goToDashboard
+      goToDashboard,
+      goToProfile,
+      goToMyNovels
     }
   }
 })

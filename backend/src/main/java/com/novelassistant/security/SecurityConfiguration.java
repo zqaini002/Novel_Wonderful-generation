@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -25,12 +25,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 public class SecurityConfiguration {
     
     private static final Logger logger = LogUtil.getLogger(SecurityConfiguration.class);
@@ -84,18 +85,20 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         logger.debug("配置安全过滤链...");
-        http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/test/public").permitAll()
-                .antMatchers("/api/novels/demo/**").permitAll() // 演示数据无需认证
-                .antMatchers("/api/novels/*/status").permitAll() // 小说处理状态查询无需认证
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/test/public").permitAll()
+                .requestMatchers("/api/novels/demo/**").permitAll() // 演示数据无需认证
+                .requestMatchers("/api/novels/*/status").permitAll() // 小说处理状态查询无需认证
                 // 暂时开放更多API权限，方便开发测试
-                .antMatchers("/api/novels/**").permitAll() // 开放所有小说相关接口
-                .antMatchers("/error").permitAll() // 允许错误页面访问
-                .anyRequest().authenticated();
+                .requestMatchers("/api/novels/**").permitAll() // 开放所有小说相关接口
+                .requestMatchers("/error").permitAll() // 允许错误页面访问
+                .anyRequest().authenticated()
+            );
 
         // 使用自定义认证提供者
         logger.debug("配置认证提供者: {}", customAuthenticationProvider.getClass().getSimpleName());

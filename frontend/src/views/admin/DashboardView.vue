@@ -22,7 +22,7 @@
                 <el-icon><User /></el-icon>
               </div>
             </template>
-            <div class="stat-value">{{ stats.totalUsers }}</div>
+            <div class="stat-value">{{ stats?.totalUsers || 0 }}</div>
           </el-card>
           
           <el-card class="stat-card" shadow="hover">
@@ -32,7 +32,7 @@
                 <el-icon><UserFilled /></el-icon>
               </div>
             </template>
-            <div class="stat-value">{{ stats.newUsers }}</div>
+            <div class="stat-value">{{ stats?.newUsers || 0 }}</div>
             <div class="stat-desc">过去7天</div>
           </el-card>
           
@@ -43,7 +43,7 @@
                 <el-icon><Reading /></el-icon>
               </div>
             </template>
-            <div class="stat-value">{{ stats.totalNovels }}</div>
+            <div class="stat-value">{{ stats?.totalNovels || 0 }}</div>
           </el-card>
           
           <el-card class="stat-card" shadow="hover">
@@ -53,7 +53,7 @@
                 <el-icon><Loading /></el-icon>
               </div>
             </template>
-            <div class="stat-value">{{ stats.processingNovels }}</div>
+            <div class="stat-value">{{ stats?.processingNovels || 0 }}</div>
           </el-card>
           
           <el-card class="stat-card" shadow="hover">
@@ -63,7 +63,7 @@
                 <el-icon><Check /></el-icon>
               </div>
             </template>
-            <div class="stat-value">{{ stats.completedNovels }}</div>
+            <div class="stat-value">{{ stats?.completedNovels || 0 }}</div>
           </el-card>
         </div>
         
@@ -124,10 +124,37 @@ const fetchDashboardData = async () => {
   loading.value = true
   try {
     const response = await adminService.getDashboardStats()
-    stats.value = response.data
+    
+    // 打印响应对象以调试
+    console.log('仪表盘API响应:', response);
+    
+    // 确保响应存在
+    if (response) {
+      // 由于前面修改了apiClient，response已经是直接的数据对象，不需要再通过response.data访问
+      stats.value = response;
+    } else {
+      // 设置默认数据
+      stats.value = {
+        totalUsers: 0,
+        newUsers: 0,
+        totalNovels: 0,
+        processingNovels: 0,
+        completedNovels: 0
+      }
+      console.warn('仪表盘数据返回为空，使用默认值')
+    }
   } catch (error) {
     console.error('获取仪表盘数据失败:', error)
-    ElMessage.error('获取仪表盘数据失败')
+    ElMessage.error('获取仪表盘数据失败: ' + (error.message || '未知错误'))
+    
+    // 出错时也设置默认值
+    stats.value = {
+      totalUsers: 0,
+      newUsers: 0,
+      totalNovels: 0,
+      processingNovels: 0,
+      completedNovels: 0
+    }
   } finally {
     loading.value = false
   }

@@ -124,11 +124,28 @@ const fetchNovels = async () => {
   loading.value = true
   try {
     const response = await adminService.getAllNovels()
-    novels.value = response.data.novels || []
-    totalNovels.value = response.data.total || novels.value.length
+    
+    // 打印API响应以便调试
+    console.log('获取小说列表响应:', response);
+    
+    // apiClient已经提取了response.data，直接检查novels字段
+    if (response && response.novels) {
+      novels.value = response.novels
+      totalNovels.value = response.total || novels.value.length
+    } else if (Array.isArray(response)) {
+      // 如果response本身就是数组，直接使用
+      novels.value = response
+      totalNovels.value = response.length
+    } else {
+      novels.value = []
+      totalNovels.value = 0
+      console.warn('小说列表API返回格式异常:', response)
+    }
   } catch (error) {
     console.error('获取小说列表失败:', error)
-    ElMessage.error('获取小说列表失败')
+    ElMessage.error('获取小说列表失败: ' + (error.message || '未知错误'))
+    novels.value = []
+    totalNovels.value = 0
   } finally {
     loading.value = false
   }

@@ -2,7 +2,7 @@ package com.novelassistant.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +25,9 @@ public class Novel {
     
     @Column
     private String description;
+    
+    @Column(name = "user_id")
+    private Long userId;
     
     @Column(name = "processing_status")
     @Enumerated(EnumType.STRING)
@@ -121,6 +124,14 @@ public class Novel {
     
     public void setDescription(String description) {
         this.description = description;
+    }
+    
+    public Long getUserId() {
+        return userId;
+    }
+    
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
     
     public ProcessingStatus getProcessingStatus() {

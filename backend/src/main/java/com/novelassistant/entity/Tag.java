@@ -1,7 +1,7 @@
 package com.novelassistant.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity

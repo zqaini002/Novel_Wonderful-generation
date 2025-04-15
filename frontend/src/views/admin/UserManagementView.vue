@@ -177,10 +177,24 @@ const fetchUsers = async () => {
   loading.value = true
   try {
     const response = await adminService.getAllUsers()
-    users.value = response.data.users || []
+    
+    // 打印API响应以便调试
+    console.log('获取用户列表响应:', response);
+    
+    // apiClient已经提取了response.data，我们只需要检查是否有users字段
+    if (response && response.users) {
+      users.value = response.users
+    } else if (Array.isArray(response)) {
+      // 如果response本身就是数组，直接使用
+      users.value = response
+    } else {
+      users.value = []
+      console.warn('用户列表API返回格式异常:', response)
+    }
   } catch (error) {
     console.error('获取用户列表失败:', error)
-    ElMessage.error('获取用户列表失败')
+    ElMessage.error('获取用户列表失败: ' + (error.message || '未知错误'))
+    users.value = []
   } finally {
     loading.value = false
   }
@@ -271,8 +285,8 @@ const toggleUserStatus = async (user) => {
     // 调用API更新状态
     const response = await adminService.updateUserStatus(user.id, newStatus)
     
-    // 更新本地数据
-    const updatedUser = response.data
+    // 更新本地数据 - response已经是返回的用户对象
+    const updatedUser = response
     const index = users.value.findIndex(u => u.id === user.id)
     if (index !== -1) {
       users.value[index] = updatedUser

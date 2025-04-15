@@ -10,11 +10,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SecureDigestAlgorithm;
+import io.jsonwebtoken.security.SignatureException;
 import com.novelassistant.security.services.UserDetailsImpl;
 import com.novelassistant.util.LogUtil;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * JWT工具类
@@ -33,7 +36,7 @@ public class JwtUtils {
     @PostConstruct
     public void init() {
         // 初始化时生成安全的HS512密钥
-        jwtKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        jwtKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode("dmlrMFCymPj1xtpOsVXuGo4LPSRTzWZmT0SgH3Fy8yD1Aa8d4gJkE2QbUcXn7I06"));
         logger.info("JWT密钥已初始化，算法: HS512，密钥长度: 512位");
     }
 
@@ -52,9 +55,9 @@ public class JwtUtils {
                 userPrincipal.getUsername(), now, expiryDate);
 
         String token = Jwts.builder()
-                .setSubject(userPrincipal.getUsername())
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .subject(userPrincipal.getUsername())
+                .issuedAt(now)
+                .expiration(expiryDate)
                 .signWith(jwtKey)
                 .compact();
         
@@ -70,7 +73,7 @@ public class JwtUtils {
      */
     public String getUserNameFromJwtToken(String token) {
         try {
-            String username = Jwts.parserBuilder()
+            String username = Jwts.parser()
                     .setSigningKey(jwtKey)
                     .build()
                     .parseClaimsJws(token)
@@ -92,7 +95,7 @@ public class JwtUtils {
      */
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parserBuilder()
+            Jwts.parser()
                 .setSigningKey(jwtKey)
                 .build()
                 .parseClaimsJws(authToken);

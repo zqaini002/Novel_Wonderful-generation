@@ -9,22 +9,31 @@ import com.novelassistant.entity.Novel;
 import com.novelassistant.entity.Chapter;
 import com.novelassistant.entity.Tag;
 import com.novelassistant.service.NovelService;
+import com.novelassistant.security.services.UserDetailsImpl;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:8081")
 public class NovelController {
     
     @Autowired
     private NovelService novelService;
     
     @GetMapping("/novels")
-    public ResponseEntity<?> getNovelList() {
+    public ResponseEntity<?> getNovelList(@RequestParam(value = "userId", required = false) Long userId) {
         try {
             Map<String, Object> response = new HashMap<>();
-            response.put("novels", novelService.getAllNovels());
+            
+            if (userId != null) {
+                // 如果提供了用户ID，过滤该用户的小说
+                response.put("novels", novelService.getNovelsByUserId(userId));
+            } else {
+                // 否则返回所有小说
+                response.put("novels", novelService.getAllNovels());
+            }
+            
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));

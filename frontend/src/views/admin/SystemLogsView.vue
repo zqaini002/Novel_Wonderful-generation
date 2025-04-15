@@ -122,9 +122,9 @@ const totalLogs = ref(0)
 const fetchLogs = async () => {
   loading.value = true
   try {
-    // 添加日志级别和日期范围过滤
     const filters = {}
-    if (logLevel.value !== 'ALL') {
+    
+    if (logLevel.value) {
       filters.level = logLevel.value
     }
     
@@ -138,11 +138,24 @@ const fetchLogs = async () => {
     }
     
     const response = await adminService.getSystemLogs(currentPage.value, pageSize.value, filters)
-    logs.value = response.data.logs || []
-    totalLogs.value = response.data.total || 0
+    
+    // 打印API响应以便调试
+    console.log('获取系统日志响应:', response);
+    
+    // apiClient已经提取了response.data，直接检查logs字段
+    if (response && response.logs) {
+      logs.value = response.logs
+      totalLogs.value = response.total || 0
+    } else {
+      logs.value = []
+      totalLogs.value = 0
+      console.warn('系统日志API返回格式异常:', response)
+    }
   } catch (error) {
     console.error('获取系统日志失败:', error)
-    ElMessage.error('获取系统日志失败')
+    ElMessage.error('获取系统日志失败: ' + (error.message || '未知错误'))
+    logs.value = []
+    totalLogs.value = 0
   } finally {
     loading.value = false
   }

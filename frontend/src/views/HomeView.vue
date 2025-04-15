@@ -2,7 +2,7 @@
   <div class="home-container">
     <section class="hero-section">
       <div class="hero-content">
-        <h1>小说精读助手</h1>
+        <h1>小说智析</h1>
         <p class="subtitle">AI驱动的小说内容分析与摘要生成系统</p>
         <p class="description">快速了解小说内容，做出明智的阅读决策</p>
         

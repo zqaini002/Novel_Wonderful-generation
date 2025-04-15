@@ -19,11 +19,13 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-import { ElConfigProvider } from 'element-plus'
+import { defineComponent, onMounted } from 'vue'
+import { useStore } from 'vuex'
+import { ElConfigProvider, ElMessage } from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import HeaderComponent from '@/components/layout/HeaderComponent.vue'
 import FooterComponent from '@/components/layout/FooterComponent.vue'
+import authService from '@/services/auth'
 
 export default defineComponent({
   name: 'App',
@@ -33,6 +35,45 @@ export default defineComponent({
     ElConfigProvider
   },
   setup() {
+    const store = useStore();
+    
+    // 在组件挂载时验证身份认证状态
+    onMounted(() => {
+      // 检查本地存储中是否有用户信息
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const userData = JSON.parse(userStr);
+          // 检查token是否存在
+          if (!userData.token && !userData.accessToken) {
+            localStorage.removeItem('user');
+            store.dispatch('auth/logout');
+            return;
+          }
+          
+          // 向后端验证令牌有效性
+          authService.checkAuthStatus()
+            .then(response => {
+              const isAuthenticated = response.data?.isAuthenticated;
+              
+              if (!isAuthenticated) {
+                localStorage.removeItem('user');
+                store.dispatch('auth/logout');
+                ElMessage.warning('登录已过期，请重新登录');
+              } else {
+                // 更新用户信息
+                store.commit('auth/loginSuccess', userData);
+              }
+            })
+            .catch(() => {
+              // API拦截器会处理401错误
+            });
+        } catch (e) {
+          localStorage.removeItem('user');
+        }
+      }
+    });
+    
     return {
       zhCn
     }
@@ -41,7 +82,7 @@ export default defineComponent({
     // 删除这部分代码，因为这些逻辑已经在router/index.js中实现
     // this.$router.beforeEach((to, from, next) => {
     //   // 设置页面标题
-    //   document.title = to.meta.title || '小说精读助手'
+    //   document.title = to.meta.title || '小说智析'
     //   
     //   // 判断该路由是否需要登录权限
     //   if (to.matched.some(record => record.meta.requiresAuth)) {

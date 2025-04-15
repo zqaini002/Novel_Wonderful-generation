@@ -1,39 +1,53 @@
 package com.novelassistant.payload.response;
 
+import java.util.Date;
 import java.util.List;
 
 public class JwtResponse {
-    private String accessToken;
+    private String token;
     private String type = "Bearer";
     private Long id;
     private String username;
     private String email;
     private String nickname;
     private List<String> roles;
+    private Date createdAt;
+    private Date lastLoginAt;
 
     public JwtResponse(String accessToken, Long id, String username, String email, String nickname, List<String> roles) {
-        this.accessToken = accessToken;
+        this.token = accessToken;
         this.id = id;
         this.username = username;
         this.email = email;
         this.nickname = nickname;
         this.roles = roles;
     }
+    
+    public JwtResponse(String accessToken, Long id, String username, String email, String nickname, List<String> roles, Date createdAt, Date lastLoginAt) {
+        this.token = accessToken;
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.nickname = nickname;
+        this.roles = roles;
+        this.createdAt = createdAt;
+        this.lastLoginAt = lastLoginAt;
+    }
 
     public String getAccessToken() {
-        return accessToken;
+        return token;
     }
 
     public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+        this.token = accessToken;
     }
 
-    public String getType() {
+    public String getTokenType() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTokenType(String tokenType) {
+        this.type = tokenType;
     }
 
     public Long getId() {
@@ -44,20 +58,20 @@ public class JwtResponse {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
     
     public String getNickname() {
@@ -71,8 +85,20 @@ public class JwtResponse {
     public List<String> getRoles() {
         return roles;
     }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+    
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    public Date getLastLoginAt() {
+        return lastLoginAt;
+    }
+    
+    public void setLastLoginAt(Date lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
     }
 } 

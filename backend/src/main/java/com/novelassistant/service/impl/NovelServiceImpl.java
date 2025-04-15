@@ -146,6 +146,11 @@ public class NovelServiceImpl implements NovelService {
         return tagRepository.findByNovel(novel);
     }
     
+    @Override
+    public List<Novel> getNovelsByUserId(Long userId) {
+        return novelRepository.findByUserId(userId);
+    }
+    
     @Transactional
     protected void processNovelFile(Long novelId, String filePath) throws IOException {
         Novel novel = novelRepository.findById(novelId)

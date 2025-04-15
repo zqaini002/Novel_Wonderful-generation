@@ -64,6 +64,13 @@
 
 ## 📅 开发日志
 
+### 2025年4月15日
+| 时间 | 工作内容 | 状态 |
+|------|---------|------|
+| **09:00-11:00** | 修复前端API调用问题<br>修正用户统计接口响应处理<br>优化MyNovelsView组件错误处理 | ✅ |
+| **13:30-15:30** | 升级Spring Boot至3.x版本<br>更新所有javax.*包引用为jakarta.*<br>修复JwtUtils兼容性问题 | ✅ |
+| **16:00-17:30** | 增强错误处理和日志记录<br>添加API响应调试功能<br>实现数据模型默认值设置 | ✅ |
+
 ### 2025年4月14日
 | 时间 | 工作内容 | 状态 |
 |------|---------|------|
@@ -81,8 +88,8 @@
     <td><b>基础架构搭建</b></td>
     <td>
       ✓ 前端框架搭建 (Vue.js 3 + Element Plus)<br>
-      ✓ 后端框架搭建 (Spring Boot 2.7.12)<br>
-      ✓ 数据库配置 (MySQL 8.0.33)<br>
+      ✓ 后端框架搭建 (Spring Boot 3.2.4)<br>
+      ✓ 数据库配置 (MySQL 8.2.0)<br>
       ✓ 基本API设计和实现
     </td>
   </tr>
@@ -119,7 +126,9 @@
       ✓ 小说文件上传功能<br>
       ✓ 简单的章节识别与提取<br>
       ✓ 小说处理状态跟踪<br>
-      ✓ 基本的小说详情查看
+      ✓ 基本的小说详情查看<br>
+      ✓ 用户小说统计功能<br>
+      ✓ 我的小说列表展示
     </td>
   </tr>
   <tr>
@@ -127,7 +136,9 @@
     <td>
       ✓ 解决Spring Security循环依赖问题<br>
       ✓ 修复AccessDeniedException错误<br>
-      ✓ 优化认证授权流程
+      ✓ 优化认证授权流程<br>
+      ✓ 升级至Spring Boot 3.x兼容<br>
+      ✓ 增强API错误处理机制
     </td>
   </tr>
 </table>
@@ -235,42 +246,44 @@
 ### 后端技术详情
 
 #### 🔧 核心框架
-* **JDK**: Oracle JDK 11.0.21 (LTS版本)
+* **JDK**: Oracle JDK 17 (LTS版本)
   * 支持模块化系统
   * 增强型字符串API
   * 改进的垃圾收集器
+  * 封闭类功能
 * **Spring生态系统**:
-  * Spring Boot 2.7.12
+  * Spring Boot 3.2.4
     * 自动配置
-    * 嵌入式服务器 (Tomcat 9.0.73)
+    * 嵌入式服务器 (Tomcat 10.1.x)
     * 生产就绪功能
-  * Spring Framework 5.3.27
+    * Jakarta EE 10支持
+  * Spring Framework 6.1.x
     * IoC容器
     * AOP支持
     * WebMVC框架
-  * Spring Security 5.7.8
+  * Spring Security 6.2.x
     * 认证和授权
     * 密码加密 (BCrypt)
     * CORS配置
-  * Spring Data JPA 2.7.12
+  * Spring Data JPA 3.2.x
     * Repository模式
     * 动态查询生成
     * 审计功能
 
 #### 💾 数据持久层
 * **ORM框架**: 
-  * Hibernate 5.6.15.Final
+  * Hibernate 6.4.x
     * 二级缓存
-    * 延迟加载
-    * 批量处理
+    * 懒加载
+    * 批处理
 * **数据库**: 
-  * MySQL 8.0.33
+  * MySQL 8.2.0
     * InnoDB引擎
     * UTF8MB4字符集
     * 优化索引
 
 #### 🔐 安全框架
-* **JWT**: jjwt 0.11.5
+* **JWT**: jjwt 0.12.3
   * 无状态认证
   * 可配置过期时间
   * 刷新令牌支持
@@ -284,15 +297,15 @@
 
 #### 📝 文档处理
 * **文本解析**:
-  * JSoup 1.16.1 (HTML解析)
-  * Apache PDFBox 2.0.27
-  * Apache POI 5.2.3 (Office文档)
+  * JSoup 1.16.2 (HTML解析)
+  * Apache PDFBox 3.0.1
+  * Apache POI 5.2.5 (Office文档)
 * **自然语言处理**:
   * HanLP portable-1.8.4
     * 中文分词
     * 命名实体识别
     * 关键词提取
-  * OpenNLP 1.9.4
+  * OpenNLP 2.3.1
 
 ### 前端技术详情
 
@@ -527,42 +540,44 @@ npm run serve
 ### Backend Technical Details
 
 #### 🔧 Core Framework
-* **JDK**: Oracle JDK 11.0.21 (LTS Version)
+* **JDK**: Oracle JDK 17 (LTS Version)
   * Modular System Support
   * Enhanced String API
   * Improved Garbage Collector
+  * Sealed Classes
 * **Spring Ecosystem**:
-  * Spring Boot 2.7.12
+  * Spring Boot 3.2.4
     * Auto-configuration
-    * Embedded Server (Tomcat 9.0.73)
+    * Embedded Server (Tomcat 10.1.x)
     * Production-ready Features
-  * Spring Framework 5.3.27
+    * Jakarta EE 10 Support
+  * Spring Framework 6.1.x
     * IoC Container
     * AOP Support
     * WebMVC Framework
-  * Spring Security 5.7.8
+  * Spring Security 6.2.x
     * Authentication & Authorization
     * Password Encryption (BCrypt)
     * CORS Configuration
-  * Spring Data JPA 2.7.12
+  * Spring Data JPA 3.2.x
     * Repository Pattern
     * Dynamic Query Generation
     * Audit Features
 
 #### 💾 Data Persistence Layer
 * **ORM Framework**: 
-  * Hibernate 5.6.15.Final
+  * Hibernate 6.4.x
     * Second-level Cache
     * Lazy Loading
     * Batch Processing
 * **Database**: 
-  * MySQL 8.0.33
+  * MySQL 8.2.0
     * InnoDB Engine
     * UTF8MB4 Character Set
     * Optimized Indexes
 
 #### 🔐 Security Framework
-* **JWT**: jjwt 0.11.5
+* **JWT**: jjwt 0.12.3
   * Stateless Authentication
   * Configurable Expiration
   * Refresh Token Support
@@ -576,15 +591,15 @@ npm run serve
 
 #### 📝 Document Processing
 * **Text Parsing**:
-  * JSoup 1.16.1 (HTML Parsing)
-  * Apache PDFBox 2.0.27
-  * Apache POI 5.2.3 (Office Documents)
+  * JSoup 1.16.2 (HTML Parsing)
+  * Apache PDFBox 3.0.1
+  * Apache POI 5.2.5 (Office Documents)
 * **Natural Language Processing**:
   * HanLP portable-1.8.4
     * Chinese Word Segmentation
     * Named Entity Recognition
     * Keyword Extraction
-  * OpenNLP 1.9.4
+  * OpenNLP 2.3.1
 
 ### Frontend Technical Details
 

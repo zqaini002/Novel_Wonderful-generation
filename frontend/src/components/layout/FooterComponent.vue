@@ -4,7 +4,7 @@
       <div class="footer-logo">
         <div class="logo-wrapper">
           <el-icon class="logo-icon"><Reading /></el-icon>
-          <h2>小说精读助手</h2>
+          <h2>小说智析</h2>
         </div>
         <p>AI驱动的小说内容分析与摘要生成系统</p>
         <div class="social-icons">
@@ -46,7 +46,7 @@
       </svg>
     </div>
     <div class="footer-bottom">
-      <p>© {{ currentYear }} 小说精读助手 - 版权所有</p>
+      <p>© {{ currentYear }} 小说智析 - 版权所有</p>
       <p>本网站仅供学习交流使用，请勿用于任何商业目的</p>
     </div>
   </div>

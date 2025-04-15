@@ -4,7 +4,7 @@ import apiClient from './api';
 const novelService = {
   // 获取小说列表
   async getNovelList() {
-    return apiClient.get('/api/novels');
+    return apiClient.get('/novels');
   },
 
   // 获取小说详情
@@ -12,7 +12,7 @@ const novelService = {
     if (!novelId) {
       throw new Error('小说ID不能为空');
     }
-    return apiClient.get(`/api/novels/${novelId}`);
+    return apiClient.get(`/novels/${novelId}`);
   },
 
   // 获取小说处理状态
@@ -21,7 +21,7 @@ const novelService = {
       throw new Error('小说ID不能为空');
     }
     try {
-      return await apiClient.get(`/api/novels/${novelId}/status`);
+      return await apiClient.get(`/novels/${novelId}/status`);
     } catch (error) {
       // 如果是404错误，返回一个格式化的状态对象而不是抛出异常
       if (error.response && error.response.status === 404) {
@@ -40,7 +40,7 @@ const novelService = {
   // 上传小说
   async uploadNovel(formData) {
     const headers = { 'Content-Type': 'multipart/form-data' };
-    return apiClient.post('/api/novels/upload', formData, { headers });
+    return apiClient.post('/novels/upload', formData, { headers });
   },
 
   // 获取小说摘要分析
@@ -48,7 +48,7 @@ const novelService = {
     if (!novelId) {
       throw new Error('小说ID不能为空');
     }
-    return apiClient.get(`/api/novels/${novelId}/summary`);
+    return apiClient.get(`/novels/${novelId}/summary`);
   },
 
   // 获取小说章节列表
@@ -56,7 +56,7 @@ const novelService = {
     if (!novelId) {
       throw new Error('小说ID不能为空');
     }
-    return apiClient.get(`/api/novels/${novelId}/chapters`);
+    return apiClient.get(`/novels/${novelId}/chapters`);
   },
 
   // 获取标签分析
@@ -64,7 +64,7 @@ const novelService = {
     if (!novelId) {
       throw new Error('小说ID不能为空');
     }
-    return apiClient.get(`/api/novels/${novelId}/tags`);
+    return apiClient.get(`/novels/${novelId}/tags`);
   },
 
   // 获取数据可视化
@@ -72,7 +72,7 @@ const novelService = {
     if (!novelId) {
       throw new Error('小说ID不能为空');
     }
-    return apiClient.get(`/api/novels/${novelId}/visualizations`);
+    return apiClient.get(`/novels/${novelId}/visualizations`);
   }
 };
 
