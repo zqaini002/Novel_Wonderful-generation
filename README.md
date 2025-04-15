@@ -14,7 +14,8 @@
       <a href="#快速开始">🚀 快速开始</a> •
       <a href="#系统架构">🏗️ 架构</a> •
       <a href="#技术栈">⚙️ 技术栈</a> •
-      <a href="#项目进度">📊 进度</a>
+      <a href="#项目进度">📊 进度</a> •
+      <a href="#联系方式">QQ: 1610494022</a>
   </p>
 # NovelSight 小说智析 (Novel Assistant)
 
