@@ -55,6 +55,15 @@ export default {
       // 确保DOM已挂载
       if (!chartRef.value) return
 
+      // 检查DOM元素是否有尺寸
+      if (chartRef.value.clientWidth === 0 || chartRef.value.clientHeight === 0) {
+        // 如果没有尺寸，延迟初始化
+        setTimeout(() => {
+          initChart();
+        }, 300);
+        return;
+      }
+
       // 销毁旧图表
       if (chart) {
         chart.dispose()
@@ -297,9 +306,27 @@ export default {
 
     // 组件挂载时初始化图表
     onMounted(() => {
-      if (!props.loading && hasData.value) {
-        setTimeout(initChart, 0)
+      // 使用nextTick确保DOM已渲染
+      // 如果窗口已经加载完成
+      if (document.readyState === 'complete') {
+        setTimeout(() => {
+          if (!props.loading && hasData.value) {
+            initChart();
+          }
+        }, 300);
+      } else {
+        // 否则等待窗口完全加载
+        window.addEventListener('load', () => {
+          setTimeout(() => {
+            if (!props.loading && hasData.value) {
+              initChart();
+            }
+          }, 300);
+        });
       }
+      
+      // 确保在组件销毁时移除事件监听
+      window.addEventListener('resize', handleResize)
     })
 
     // 组件卸载前销毁图表

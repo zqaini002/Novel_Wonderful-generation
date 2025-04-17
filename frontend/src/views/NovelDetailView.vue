@@ -207,6 +207,7 @@ import { InfoFilled, FullScreen } from '@element-plus/icons-vue'
 import KeywordCloud from '@/components/visualization/KeywordCloud.vue'
 import PlotTrendChart from '@/components/visualization/PlotTrendChart.vue'
 import StructureAnalysisChart from '@/components/visualization/StructureAnalysisChart.vue'
+import { ElMessage } from 'element-plus'
 
 export default {
   name: 'NovelDetailView',
@@ -422,10 +423,22 @@ export default {
     })
     
     const navigateToVisualization = () => {
-      console.log('Navigating to visualization for novel:', novel.value.id);
+      if (!novel.value || !novel.value.id) {
+        console.error('无法导航到可视化页面: 缺少小说ID');
+        ElMessage.error('无法查看可视化分析：无法获取小说ID');
+        return;
+      }
+      
+      const novelId = novel.value.id;
+      console.log('Navigating to visualization for novel:', novelId);
+      
+      // 使用字符串类型的ID确保路由参数正确传递
       router.push({
         name: 'novel-visualization', 
-        params: {id: novel.value.id || '1'} // Fallback to ID 1 if no novel ID
+        params: { id: String(novelId) }
+      }).catch(err => {
+        console.error('导航到可视化页面失败:', err);
+        ElMessage.error('导航到可视化页面失败');
       });
     }
     

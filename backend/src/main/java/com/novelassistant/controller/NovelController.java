@@ -15,7 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.*;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping({"/", "/api"})
 public class NovelController {
     
     @Autowired

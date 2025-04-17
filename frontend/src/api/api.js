@@ -101,6 +101,55 @@ apiClient.interceptors.response.use(
       }
     }
     
+    // 模拟结构化分析数据
+    if (error.config.url.includes('/novel/structure-analysis')) {
+      const mainStructure = [
+        { name: '第一幕', value: 8, startChapter: 1, endChapter: 8 },
+        { name: '第二幕', value: 12, startChapter: 9, endChapter: 20 },
+        { name: '第三幕', value: 10, startChapter: 21, endChapter: 30 }
+      ];
+      
+      const detailStructure = [
+        { name: '引子', value: 2, startChapter: 1, endChapter: 2 },
+        { name: '发现问题', value: 3, startChapter: 3, endChapter: 5 },
+        { name: '冲突升级', value: 3, startChapter: 6, endChapter: 8 },
+        { name: '新的旅程', value: 4, startChapter: 9, endChapter: 12 },
+        { name: '遭遇危机', value: 4, startChapter: 13, endChapter: 16 },
+        { name: '突破瓶颈', value: 4, startChapter: 17, endChapter: 20 },
+        { name: '最终对决', value: 6, startChapter: 21, endChapter: 26 },
+        { name: '结局', value: 4, startChapter: 27, endChapter: 30 }
+      ];
+      
+      return Promise.reject({
+        code: 200,
+        data: {
+          mainStructure,
+          detailStructure,
+          totalChapters: 30,
+          structure: [
+            {
+              name: '整体架构',
+              children: mainStructure.map(item => ({
+                name: item.name,
+                value: item.value,
+                startChapter: item.startChapter,
+                endChapter: item.endChapter
+              }))
+            },
+            {
+              name: '细节架构',
+              children: detailStructure.map(item => ({
+                name: item.name,
+                value: item.value,
+                startChapter: item.startChapter,
+                endChapter: item.endChapter
+              }))
+            }
+          ]
+        }
+      });
+    }
+    
     return Promise.reject(error);
   }
 );

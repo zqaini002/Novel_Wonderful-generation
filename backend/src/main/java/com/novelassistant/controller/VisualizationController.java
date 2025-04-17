@@ -17,7 +17,7 @@ import java.util.Map;
  * 提供各类小说数据可视化API
  */
 @RestController
-@RequestMapping("/novels/visualization")
+@RequestMapping({"/novels/visualization", "/api/novels/visualization"})
 @CrossOrigin(origins = "http://localhost:8081", allowCredentials = "true")
 public class VisualizationController {
 

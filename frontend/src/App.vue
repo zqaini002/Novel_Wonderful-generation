@@ -6,9 +6,11 @@
           <header-component />
         </el-header>
         <el-main>
-          <transition name="fade" mode="out-in">
-            <router-view />
-          </transition>
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </el-main>
         <el-footer>
           <footer-component />

@@ -6,9 +6,12 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
-// 导入ECharts和wordcloud
+// 导入ECharts和wordcloud - 确保正确注册
 import * as echarts from 'echarts'
 import 'echarts-wordcloud'
+
+// 检查wordCloud系列是否已注册
+console.log('Main.js - 已注册的ECharts系列:', echarts.getMap('series'));
 
 // 将ECharts挂载到全局window对象上，兼容现有组件
 window.echarts = echarts;
@@ -19,7 +22,7 @@ window.console.error = (...args) => {
   if (args[0] && typeof args[0] === 'string' && args[0].includes('ResizeObserver loop')) {
     return;
   }
-  originalConsoleError(...args);
+ originalConsoleError(...args);
 };
 
 // 创建Vue应用

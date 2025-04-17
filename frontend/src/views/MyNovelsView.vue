@@ -1,83 +1,132 @@
 <template>
   <div class="my-novels-container">
-    <h1>我的小说</h1>
-    
-    <div v-if="loading" class="loading-container">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">加载中...</span>
-      </div>
-      <p>正在加载您的小说列表...</p>
-    </div>
-    
-    <div v-else-if="error" class="error-container">
-      <div class="alert alert-danger" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        {{ error }}
-      </div>
-      <button class="btn btn-primary mt-3" @click="fetchUserNovels">
-        <i class="bi bi-arrow-clockwise me-1"></i> 重试
-      </button>
-    </div>
-    
-    <div v-else-if="novels.length === 0" class="empty-container">
-      <div class="alert alert-info" role="alert">
-        <i class="bi bi-info-circle-fill me-2"></i>
-        您还没有上传任何小说。
-      </div>
-      <router-link to="/upload" class="btn btn-primary mt-3">
-        <i class="bi bi-upload me-1"></i> 去上传小说
+    <div class="page-header">
+      <h1>我的小说</h1>
+      <router-link to="/upload" class="el-button el-button--primary">
+        <el-icon><Upload /></el-icon>
+        <span>上传新小说</span>
       </router-link>
     </div>
     
-    <div v-else class="novels-list">
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <div v-for="novel in novels" :key="novel.id" class="col">
-          <div class="card h-100 novel-card">
-            <div class="card-body">
-              <h5 class="card-title">{{ novel.title }}</h5>
-              <p class="card-text text-muted">
-                <small>
-                  <i class="bi bi-calendar-event me-1"></i>
-                  上传时间: {{ formatDate(novel.createTime) }}
-                </small>
-              </p>
-              <p class="card-text status-badge">
-                <span :class="getStatusBadgeClass(novel.status)">{{ getStatusText(novel.status) }}</span>
-              </p>
-              <p class="card-text description">{{ novel.description || '暂无简介' }}</p>
-            </div>
-            <div class="card-footer bg-transparent border-top-0">
-              <router-link :to="`/novel/${novel.id}`" class="btn btn-outline-primary btn-sm me-2">
-                <i class="bi bi-book me-1"></i> 查看详情
-              </router-link>
-              <button 
-                v-if="novel.status === 'COMPLETED'" 
-                class="btn btn-outline-success btn-sm me-2"
-                @click="goToAnalyze(novel.id)"
-              >
-                <i class="bi bi-graph-up me-1"></i> 查看分析
-              </button>
-              <button 
-                class="btn btn-outline-danger btn-sm"
-                @click="confirmDelete(novel)"
-              >
-                <i class="bi bi-trash me-1"></i> 删除
-              </button>
-            </div>
+    <div v-if="loading" class="loading-container">
+      <el-empty description="加载中..." :image-size="120">
+        <template #image>
+          <el-icon class="loading-icon"><Loading /></el-icon>
+        </template>
+      </el-empty>
+    </div>
+    
+    <div v-else-if="error" class="error-container">
+      <el-result
+        icon="error"
+        :title="error"
+        sub-title="无法获取小说列表"
+      >
+        <template #extra>
+          <el-button type="primary" @click="fetchUserNovels">
+            <el-icon><RefreshRight /></el-icon>
+            重新加载
+          </el-button>
+        </template>
+      </el-result>
+    </div>
+    
+    <div v-else-if="novels.length === 0" class="empty-container">
+      <el-result
+        icon="info"
+        title="暂无小说"
+        sub-title="您还没有上传任何小说，立即开始添加吧！"
+      >
+        <template #extra>
+          <router-link to="/upload">
+            <el-button type="primary">
+              <el-icon><Upload /></el-icon>
+              上传小说
+            </el-button>
+          </router-link>
+        </template>
+      </el-result>
+    </div>
+    
+    <div v-else class="novels-grid">
+      <el-card 
+        v-for="novel in novels" 
+        :key="novel.id" 
+        class="novel-card"
+        :body-style="{ padding: '0' }"
+        shadow="hover"
+      >
+        <div class="card-status-badge" :class="getStatusClass(novel.status)">
+          {{ getStatusText(novel.status) }}
+        </div>
+        
+        <div class="card-content">
+          <h3 class="novel-title">{{ novel.title }}</h3>
+          
+          <div class="novel-meta">
+            <el-icon><Calendar /></el-icon>
+            <span>{{ formatDate(novel.createTime) }}</span>
+          </div>
+          
+          <p class="novel-description">{{ novel.description || '暂无简介' }}</p>
+          
+          <div class="novel-progress" v-if="novel.totalChapters">
+            <span class="progress-text">处理进度: {{ novel.processedChapters || 0 }}/{{ novel.totalChapters }}</span>
+            <el-progress 
+              :percentage="novel.totalChapters ? Math.round((novel.processedChapters || 0) / novel.totalChapters * 100) : 0"
+              :status="novel.processedChapters >= novel.totalChapters ? 'success' : ''"
+              :stroke-width="8"
+              :text-inside="true"
+            />
           </div>
         </div>
-      </div>
+        
+        <div class="card-actions">
+          <el-button 
+            type="primary" 
+            @click="$router.push(`/novel/${novel.id}`)"
+          >
+            <el-icon><View /></el-icon>
+            查看详情
+          </el-button>
+          <el-button 
+            v-if="novel.status === 'COMPLETED'" 
+            type="success" 
+            @click="goToAnalyze(novel.id)"
+          >
+            <el-icon><DataAnalysis /></el-icon>
+            查看分析
+          </el-button>
+          <el-button 
+            type="danger" 
+            @click="confirmDelete(novel)"
+          >
+            <el-icon><Delete /></el-icon>
+            删除
+          </el-button>
+        </div>
+      </el-card>
     </div>
   </div>
 </template>
 
 <script>
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { View, DataAnalysis, Delete, Upload, Loading, RefreshRight, Calendar } from '@element-plus/icons-vue';
 import userService from '@/services/user';
 import novelService from '@/services/novel';
 
 export default {
   name: 'MyNovelsView',
+  components: {
+    View,
+    DataAnalysis,
+    Delete,
+    Upload,
+    Loading,
+    RefreshRight,
+    Calendar
+  },
   data() {
     return {
       novels: [],
@@ -150,14 +199,14 @@ export default {
       };
       return statusMap[status] || status;
     },
-    getStatusBadgeClass(status) {
+    getStatusClass(status) {
       const classMap = {
-        'PENDING': 'badge bg-warning',
-        'PROCESSING': 'badge bg-info',
-        'COMPLETED': 'badge bg-success',
-        'FAILED': 'badge bg-danger'
+        'PENDING': 'status-pending',
+        'PROCESSING': 'status-processing',
+        'COMPLETED': 'status-completed',
+        'FAILED': 'status-failed'
       };
-      return classMap[status] || 'badge bg-secondary';
+      return classMap[status] || 'status-default';
     },
     goToAnalyze(novelId) {
       this.$router.push(`/analyze/${novelId}`);
@@ -207,37 +256,160 @@ export default {
 
 <style scoped>
 .my-novels-container {
-  padding: 2rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0;
 }
 
 .loading-container, .error-container, .empty-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  min-height: 300px;
-  text-align: center;
+  align-items: center;
+  min-height: 350px;
+}
+
+.loading-icon {
+  font-size: 48px;
+  color: #409EFF;
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.novels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 25px;
 }
 
 .novel-card {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  position: relative;
+  transition: transform 0.3s ease;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .novel-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
-.status-badge {
-  margin-bottom: 1rem;
+.card-status-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
 }
 
-.description {
+.status-pending {
+  background-color: #e6a23c;
+}
+
+.status-processing {
+  background-color: #409eff;
+}
+
+.status-completed {
+  background-color: #67c23a;
+}
+
+.status-failed {
+  background-color: #f56c6c;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.novel-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-right: 70px; /* 空间给状态标签 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.novel-meta {
+  display: flex;
+  align-items: center;
+  color: #909399;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.novel-meta .el-icon {
+  margin-right: 5px;
+}
+
+.novel-description {
+  color: #606266;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  min-height: 65px;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  min-height: 4.5rem;
+}
+
+.novel-progress {
+  margin-bottom: 16px;
+}
+
+.progress-text {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #606266;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 20px;
+}
+
+.card-actions .el-button {
+  flex: 1;
+}
+
+@media screen and (max-width: 768px) {
+  .novels-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
 }
 </style> 
