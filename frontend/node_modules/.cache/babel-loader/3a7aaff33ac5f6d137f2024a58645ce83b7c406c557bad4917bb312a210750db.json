@@ -1,0 +1,1 @@
+{"ast":null,"code":"var cssClassIdx = 0;\nexport function getClassId() {\n  return cssClassIdx++;\n}","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

@@ -45,9 +45,13 @@
                 <el-icon><Collection /></el-icon>
                 <span>我的小说</span>
               </el-dropdown-item>
-              <el-dropdown-item v-if="isAdmin" @click="goToDashboard">
+              <el-dropdown-item v-if="isAdmin" @click="goToDashboard" class="admin-function">
                 <el-icon><Monitor /></el-icon>
                 <span>管理员仪表盘</span>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="isAdmin" @click="goToSystemLogs" class="admin-function">
+                <el-icon><Document /></el-icon>
+                <span>系统日志</span>
               </el-dropdown-item>
               <el-dropdown-item divided @click="logout">
                 <el-icon><SwitchButton /></el-icon>
@@ -86,7 +90,8 @@ import {
   Reading,
   Key,
   UserFilled,
-  Monitor
+  Monitor,
+  Document
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
@@ -103,7 +108,8 @@ export default defineComponent({
     Reading,
     Key,
     UserFilled,
-    Monitor
+    Monitor,
+    Document
   },
   setup() {
     const store = useStore()
@@ -180,6 +186,11 @@ export default defineComponent({
       router.push('/my-novels')
     }
     
+    // 跳转到系统日志
+    const goToSystemLogs = () => {
+      router.push('/admin/logs')
+    }
+    
     return {
       activeIndex,
       isLoggedIn,
@@ -191,7 +202,8 @@ export default defineComponent({
       logout,
       goToDashboard,
       goToProfile,
-      goToMyNovels
+      goToMyNovels,
+      goToSystemLogs
     }
   }
 })
@@ -394,5 +406,14 @@ export default defineComponent({
 :deep(.el-dropdown-menu__item .el-icon) {
   margin-right: 8px;
   font-size: 16px;
+}
+
+/* 管理员菜单项样式 */
+:deep(.el-dropdown-menu .admin-function) {
+  color: var(--admin-color);
+}
+
+:deep(.el-dropdown-menu .admin-function .el-icon) {
+  color: var(--admin-color);
 }
 </style> 

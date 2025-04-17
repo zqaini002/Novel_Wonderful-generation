@@ -9,6 +9,7 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import MyNovelsView from '../views/MyNovelsView.vue'
+import NovelVisualizationView from '../views/NovelVisualizationView.vue'
 
 const routes = [
   {
@@ -40,6 +41,12 @@ const routes = [
     name: 'novel-detail',
     component: NovelDetailView,
     meta: { title: '小说分析结果 - 小说智析' }
+  },
+  {
+    path: '/novel/:id/visualization',
+    name: 'novel-visualization',
+    component: NovelVisualizationView,
+    meta: { title: '小说可视化分析 - 小说智析' }
   },
   {
     path: '/login',
@@ -130,6 +137,16 @@ const routes = [
     component: () => import('../views/admin/SystemLogsView.vue'),
     meta: { 
       title: '系统日志 - 小说智析',
+      requiresAuth: true,
+      adminOnly: true 
+    }
+  },
+  {
+    path: '/admin/visualization',
+    name: 'admin-visualization',
+    component: () => import('../views/admin/VisualizationView.vue'),
+    meta: { 
+      title: '小说可视化 - 小说智析',
       requiresAuth: true,
       adminOnly: true 
     }

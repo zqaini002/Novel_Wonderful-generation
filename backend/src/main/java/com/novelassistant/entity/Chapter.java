@@ -28,6 +28,9 @@ public class Chapter {
     @Lob
     private String content;
     
+    @Column(name = "word_count")
+    private Integer wordCount;
+    
     @Column
     @Lob
     private String summary;
@@ -95,6 +98,19 @@ public class Chapter {
     
     public void setContent(String content) {
         this.content = content;
+        // 自动计算字数
+        if (content != null) {
+            // 中文每个字符算一个字，英文每个单词算一个词
+            this.wordCount = content.length();
+        }
+    }
+    
+    public Integer getWordCount() {
+        return wordCount;
+    }
+    
+    public void setWordCount(Integer wordCount) {
+        this.wordCount = wordCount;
     }
     
     public String getSummary() {

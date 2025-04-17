@@ -124,35 +124,85 @@ const fetchLogs = async () => {
   try {
     const filters = {}
     
-    if (logLevel.value) {
+    if (logLevel.value && logLevel.value !== 'ALL') {
       filters.level = logLevel.value
     }
     
     if (dateRange.value && dateRange.value.length === 2) {
-      filters.startDate = dateRange.value[0].toISOString().split('T')[0]
-      filters.endDate = dateRange.value[1].toISOString().split('T')[0]
+      // 设置开始日期为当天的00:00:00
+      const startDate = new Date(dateRange.value[0])
+      startDate.setHours(0, 0, 0, 0)
+      filters.startDate = startDate.toISOString().split('T')[0]
+      
+      // 设置结束日期为当天的23:59:59，确保包含整天
+      const endDate = new Date(dateRange.value[1])
+      endDate.setHours(23, 59, 59, 999)
+      filters.endDate = endDate.toISOString().split('T')[0]
+      
+      console.log('日期范围:', {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        startDateStr: filters.startDate,
+        endDateStr: filters.endDate
+      })
     }
     
     if (searchQuery.value) {
       filters.query = searchQuery.value
     }
     
+    console.log('请求系统日志参数:', { page: currentPage.value, size: pageSize.value, filters })
+    
+    // 提前构建URL以便调试
+    let url = `/admin/logs?page=${currentPage.value}&size=${pageSize.value}`;
+    if (filters.level) url += `&level=${filters.level}`;
+    if (filters.startDate) url += `&startDate=${filters.startDate}`;
+    if (filters.endDate) url += `&endDate=${filters.endDate}`;
+    if (filters.query) url += `&query=${encodeURIComponent(filters.query)}`;
+    console.log('请求URL:', url);
+    
     const response = await adminService.getSystemLogs(currentPage.value, pageSize.value, filters)
     
     // 打印API响应以便调试
     console.log('获取系统日志响应:', response);
     
+    // 增加空检查
+    if (response === undefined || response === null) {
+      console.warn('系统日志API返回undefined或null');
+      logs.value = []
+      totalLogs.value = 0
+      ElMessage.warning('系统日志返回为空')
+      return
+    }
+    
     // apiClient已经提取了response.data，直接检查logs字段
     if (response && response.logs) {
       logs.value = response.logs
       totalLogs.value = response.total || 0
+      console.log(`成功获取系统日志, 共${totalLogs.value}条记录`)
+      
+      // 检查logs数组内容
+      if (logs.value.length > 0) {
+        console.log('第一条日志记录:', logs.value[0])
+      } else {
+        console.log('日志记录为空数组')
+      }
     } else {
       logs.value = []
       totalLogs.value = 0
       console.warn('系统日志API返回格式异常:', response)
+      console.warn('响应数据类型:', typeof response)
+      console.warn('响应数据结构:', Object.keys(response || {}))
+      ElMessage.warning('系统日志数据格式异常')
     }
   } catch (error) {
     console.error('获取系统日志失败:', error)
+    console.error('错误类型:', error.name)
+    console.error('错误消息:', error.message)
+    if (error.response) {
+      console.error('错误响应状态:', error.response.status)
+      console.error('错误响应数据:', error.response.data)
+    }
     ElMessage.error('获取系统日志失败: ' + (error.message || '未知错误'))
     logs.value = []
     totalLogs.value = 0

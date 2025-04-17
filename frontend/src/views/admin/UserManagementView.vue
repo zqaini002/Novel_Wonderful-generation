@@ -63,7 +63,7 @@
               {{ formatDate(scope.row.createdAt) }}
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="200" fixed="right">
+          <el-table-column label="操作" width="300" fixed="right">
             <template #default="scope">
               <el-button
                 size="small"
@@ -71,6 +71,13 @@
                 @click.stop="viewUserDetail(scope.row)"
               >
                 查看
+              </el-button>
+              <el-button
+                size="small"
+                type="warning"
+                @click.stop="openEditPasswordDialog(scope.row)"
+              >
+                修改密码
               </el-button>
               <el-button
                 size="small"
@@ -149,6 +156,12 @@
         <span class="dialog-footer">
           <el-button @click="userDetailDialogVisible = false">关闭</el-button>
           <el-button
+            type="primary"
+            @click="openEditPasswordDialog(selectedUser)"
+          >
+            修改密码
+          </el-button>
+          <el-button
             :type="selectedUser?.enabled ? 'danger' : 'success'"
             @click="toggleUserStatus(selectedUser)"
           >
@@ -157,11 +170,48 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 编辑密码对话框 -->
+    <el-dialog
+      v-model="editPasswordDialog"
+      title="修改用户密码"
+      width="500px"
+    >
+      <el-form
+        ref="passwordForm"
+        :model="passwordData"
+        :rules="passwordRules"
+        label-width="120px"
+      >
+        <el-form-item label="用户名">
+          <el-input :value="currentEditUser ? currentEditUser.username : ''" disabled />
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPassword">
+          <el-input v-model="passwordData.newPassword" type="password" show-password />
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPassword">
+          <el-input v-model="passwordData.confirmPassword" type="password" show-password />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span>
+          <el-button @click="editPasswordDialog = false">取消</el-button>
+          <el-button
+            type="primary"
+            :loading="updating"
+            @click="updateUserPassword"
+          >
+            保存
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+/* eslint-disable */
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import adminService from '@/api/admin'
@@ -171,6 +221,33 @@ const users = ref([])
 const searchQuery = ref('')
 const selectedUser = ref(null)
 const userDetailDialogVisible = ref(false)
+const editPasswordDialog = ref(false)
+const currentEditUser = ref(null)
+const passwordForm = ref(null)
+const passwordData = ref({
+  newPassword: '',
+  confirmPassword: '',
+})
+const updating = ref(false)
+const passwordRules = {
+  newPassword: [
+    { required: true, message: '密码不能为空', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6个字符', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    { 
+      validator: (rule, value, callback) => {
+        if (value !== passwordData.value.newPassword) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      }, 
+      trigger: 'blur' 
+    }
+  ]
+}
 
 // 获取所有用户列表
 const fetchUsers = async () => {
@@ -283,26 +360,44 @@ const toggleUserStatus = async (user) => {
     )
     
     // 调用API更新状态
+    console.log(`正在发送请求更新用户 ${user.id} 的状态为 ${newStatus}`)
     const response = await adminService.updateUserStatus(user.id, newStatus)
+    console.log('更新用户状态响应:', response)
     
-    // 更新本地数据 - response已经是返回的用户对象
-    const updatedUser = response
-    const index = users.value.findIndex(u => u.id === user.id)
-    if (index !== -1) {
-      users.value[index] = updatedUser
-    }
+    // 刷新用户列表，确保数据是最新的
+    await fetchUsers()
     
-    // 如果正在查看的用户是被修改的用户，更新选中的用户
+    // 如果正在查看的用户是被修改的用户，刷新选中的用户
     if (selectedUser.value && selectedUser.value.id === user.id) {
-      selectedUser.value = updatedUser
+      // 从刷新后的列表中找到用户并更新选中的用户
+      const updatedUser = users.value.find(u => u.id === user.id)
+      if (updatedUser) {
+        selectedUser.value = updatedUser
+      }
     }
     
     ElMessage.success(`用户已${statusText}`)
   } catch (err) {
-    if (err !== 'cancel') {
-      console.error('更新用户状态失败:', err)
-      ElMessage.error('更新用户状态失败')
+    if (err === 'cancel') {
+      console.log('用户取消了操作')
+      return
     }
+    
+    console.error('更新用户状态失败:', err)
+    let errorMessage = '更新用户状态失败'
+    
+    // 尝试提取详细错误信息
+    if (err.response && err.response.data) {
+      if (err.response.data.message) {
+        errorMessage = err.response.data.message
+      } else if (err.response.data.error) {
+        errorMessage = err.response.data.error
+      }
+    } else if (err.message) {
+      errorMessage = err.message
+    }
+    
+    ElMessage.error(errorMessage)
   }
 }
 
@@ -341,6 +436,52 @@ const deleteUser = async (user) => {
     }
   }
 }
+
+// 在用户详情对话框中添加"修改密码"按钮
+const openEditPasswordDialog = (user) => {
+  currentEditUser.value = user
+  passwordData.value = {
+    newPassword: '',
+    confirmPassword: ''
+  }
+  editPasswordDialog.value = true
+}
+
+// 更新用户密码
+const updateUserPassword = async () => {
+  if (!passwordForm.value) return
+
+  // 验证表单
+  await passwordForm.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        updating.value = true
+        await adminService.updateUserInfo(currentEditUser.value.id, {
+          password: passwordData.value.newPassword
+        })
+        editPasswordDialog.value = false
+        ElMessage.success('密码修改成功')
+        
+        // 重新获取用户列表以确保数据是最新的
+        fetchUsers()
+      } catch (error) {
+        console.error('修改密码失败', error)
+        ElMessage.error(`修改密码失败: ${error.response?.data?.message || error.message}`)
+      } finally {
+        updating.value = false
+      }
+    }
+  })
+}
+
+// 添加修改密码选项到用户详情弹窗
+const userDetailActions = [
+  {
+    label: '修改密码',
+    action: openEditPasswordDialog,
+    type: 'primary'
+  }
+]
 
 // 组件挂载时获取数据
 onMounted(() => {

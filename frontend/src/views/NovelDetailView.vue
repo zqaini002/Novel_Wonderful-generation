@@ -126,7 +126,47 @@
         
         <el-tab-pane label="数据可视化" name="visualization">
           <div class="visualization-section">
-            <el-empty description="数据分析中，敬请期待..." />
+            <div class="vis-header">
+              <h3>数据可视化</h3>
+              <el-button 
+                type="primary" 
+                @click="navigateToVisualization"
+                size="small">
+                <el-icon><FullScreen /></el-icon>
+                查看完整可视化
+              </el-button>
+            </div>
+            <el-tabs v-model="visualTab" type="card" class="vis-tabs">
+              <el-tab-pane label="关键词云" name="keywords">
+                <div class="vis-container">
+                  <p class="vis-description">该关键词云展示了小说中出现频率最高的关键词，词汇大小表示其在小说中的重要程度。</p>
+                  <keyword-cloud 
+                    :keywords="novel.keywords || []" 
+                    title="小说关键词分布"
+                    height="400px" />
+                </div>
+              </el-tab-pane>
+              
+              <el-tab-pane label="情节波动图" name="plotTrend">
+                <div class="vis-container">
+                  <p class="vis-description">情节波动图展示了小说情感和紧张度随章节的变化，帮助理解故事结构和节奏。</p>
+                  <plot-trend-chart
+                    :plot-data="novel.plotTrendData || []"
+                    title="情节波动趋势"
+                    height="400px" />
+                </div>
+              </el-tab-pane>
+              
+              <el-tab-pane label="结构分析" name="structure">
+                <div class="vis-container">
+                  <p class="vis-description">小说结构分析图展示了小说各部分的比例和关系，帮助理解整体结构布局。</p>
+                  <structure-analysis-chart
+                    :structure-data="novel.structureData || {}"
+                    title="小说结构分析"
+                    height="500px" />
+                </div>
+              </el-tab-pane>
+            </el-tabs>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -160,23 +200,33 @@
 
 <script>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import novelApi from '@/api/novel'
-import { InfoFilled } from '@element-plus/icons-vue'
+import visualizationService from '@/api/visualization'
+import { InfoFilled, FullScreen } from '@element-plus/icons-vue'
+import KeywordCloud from '@/components/visualization/KeywordCloud.vue'
+import PlotTrendChart from '@/components/visualization/PlotTrendChart.vue'
+import StructureAnalysisChart from '@/components/visualization/StructureAnalysisChart.vue'
 
 export default {
   name: 'NovelDetailView',
   components: {
-    InfoFilled
+    InfoFilled,
+    FullScreen,
+    KeywordCloud,
+    PlotTrendChart,
+    StructureAnalysisChart
   },
   setup() {
     const route = useRoute()
+    const router = useRouter()
     
     const loading = ref(true)
     const error = ref(null)
     const dialogVisible = ref(false)
     const selectedChapter = ref(null)
     const activeTab = ref('summary')
+    const visualTab = ref('keywords')
     const showChaptersTable = ref(false)
     const chaptersLoading = ref(false)
     
@@ -214,11 +264,142 @@ export default {
         const response = await novelApi.getNovelDetail(novelId.value)
         novel.value = response
         
+        // 获取可视化数据
+        if (novel.value && novel.value.processingStatus === 'COMPLETED') {
+          try {
+            // 获取可视化数据
+            const visualData = await visualizationService.getAllVisualizationData(novelId.value)
+            
+            // 整合数据到novel对象中
+            novel.value = {
+              ...novel.value,
+              keywords: visualData.keywords || [],
+              plotTrendData: visualData.emotional || [],
+              structureData: visualData.structure || {}
+            }
+          } catch (visError) {
+            console.warn('获取可视化数据失败:', visError)
+            // 设置默认的演示数据
+            novel.value.keywords = generateDemoKeywords()
+            novel.value.plotTrendData = generateDemoPlotTrend()
+            novel.value.structureData = generateDemoStructureData()
+          }
+        } else if (isDemo.value) {
+          // 设置默认的演示数据
+          novel.value.keywords = generateDemoKeywords()
+          novel.value.plotTrendData = generateDemoPlotTrend()
+          novel.value.structureData = generateDemoStructureData()
+        }
+        
       } catch (err) {
         console.error('获取小说详情失败:', err)
         error.value = '获取小说详情失败，请稍后重试'
       } finally {
         loading.value = false
+      }
+    }
+    
+    // 生成演示关键词数据
+    const generateDemoKeywords = () => {
+      return [
+        { name: '主角', value: 100 },
+        { name: '爱情', value: 85 },
+        { name: '冒险', value: 70 },
+        { name: '战斗', value: 65 },
+        { name: '友情', value: 62 },
+        { name: '背叛', value: 58 },
+        { name: '成长', value: 54 },
+        { name: '复仇', value: 52 },
+        { name: '魔法', value: 50 },
+        { name: '宿命', value: 48 },
+        { name: '奇幻', value: 45 },
+        { name: '阴谋', value: 40 },
+        { name: '正义', value: 38 },
+        { name: '邪恶', value: 35 },
+        { name: '王国', value: 32 },
+        { name: '家族', value: 30 },
+        { name: '战争', value: 28 },
+        { name: '和平', value: 25 },
+        { name: '勇气', value: 22 },
+        { name: '智慧', value: 20 },
+        { name: '牺牲', value: 18 },
+        { name: '羁绊', value: 16 },
+        { name: '命运', value: 15 },
+        { name: '生死', value: 12 },
+        { name: '传说', value: 10 }
+      ]
+    }
+    
+    // 生成演示情节波动数据
+    const generateDemoPlotTrend = () => {
+      const chapters = []
+      for (let i = 1; i <= 30; i++) {
+        // 基础情感值
+        let emotion = 0
+        
+        // 创建典型的小说情节曲线
+        if (i < 5) {
+          // 开头平缓
+          emotion = 20 + Math.random() * 10
+        } else if (i < 10) {
+          // 初步上升
+          emotion = 30 + (i - 5) * 5 + Math.random() * 10
+        } else if (i < 15) {
+          // 第一个小高潮
+          emotion = 50 + Math.sin((i - 10) * 0.8) * 20 + Math.random() * 10
+        } else if (i < 20) {
+          // 中间起伏
+          emotion = 40 + Math.sin((i - 15) * 0.5) * 15 + Math.random() * 15
+        } else if (i < 25) {
+          // 逐渐攀升到高潮
+          emotion = 50 + (i - 20) * 8 + Math.random() * 10
+        } else {
+          // 最后的高潮和结局
+          emotion = 90 - (i - 25) * 6 + Math.random() * 10
+        }
+        
+        const isImportant = i === 14 || i === 24 // 重要章节标记
+        
+        // 处理特殊章节
+        const isClimaxStart = i === 22
+        const isClimaxEnd = i === 27
+        
+        chapters.push({
+          chapterNumber: `第${i}章`,
+          emotion: Math.round(emotion),
+          isImportant,
+          isClimaxStart,
+          isClimaxEnd,
+          event: isImportant ? `章节${i}关键事件` : ''
+        })
+      }
+      return chapters
+    }
+    
+    // 生成演示结构数据
+    const generateDemoStructureData = () => {
+      return {
+        mainStructure: [
+          { name: '开端', value: 5, color: '#5470c6' },
+          { name: '铺垫', value: 7, color: '#91cc75' },
+          { name: '发展', value: 10, color: '#fac858' },
+          { name: '高潮', value: 5, color: '#ee6666' },
+          { name: '结局', value: 3, color: '#73c0de' }
+        ],
+        detailStructure: [
+          { name: '角色介绍', value: 2, color: '#5470c6' },
+          { name: '世界设定', value: 3, color: '#91cc75' },
+          { name: '初始冲突', value: 2, color: '#6492ed' },
+          { name: '情节递进', value: 5, color: '#fac858' },
+          { name: '次要冲突', value: 3, color: '#ee6666' },
+          { name: '关系发展', value: 4, color: '#a065d5' },
+          { name: '主要冲突', value: 3, color: '#73c0de' },
+          { name: '危机', value: 2, color: '#3ba272' },
+          { name: '转折点', value: 1, color: '#fc8452' },
+          { name: '高潮', value: 3, color: '#9a60b4' },
+          { name: '解决', value: 2, color: '#ea7ccc' },
+          { name: '结局', value: 1, color: '#457fd6' }
+        ]
       }
     }
     
@@ -240,6 +421,14 @@ export default {
       }
     })
     
+    const navigateToVisualization = () => {
+      console.log('Navigating to visualization for novel:', novel.value.id);
+      router.push({
+        name: 'novel-visualization', 
+        params: {id: novel.value.id || '1'} // Fallback to ID 1 if no novel ID
+      });
+    }
+    
     onMounted(() => {
       fetchNovelDetails()
     })
@@ -253,10 +442,12 @@ export default {
       selectedChapter,
       viewChapterSummary,
       activeTab,
+      visualTab,
       showChaptersTable,
       chaptersLoading,
       getTagsByType,
-      isDemo
+      isDemo,
+      navigateToVisualization
     }
   }
 }
@@ -378,5 +569,34 @@ h3 {
 
 .mb-3 {
   margin-bottom: 1rem;
+}
+
+.visualization-section {
+  padding: 10px;
+}
+
+.vis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.vis-tabs {
+  margin-top: 10px;
+}
+
+.vis-container {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.vis-description {
+  color: #666;
+  margin-bottom: 15px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 </style> 

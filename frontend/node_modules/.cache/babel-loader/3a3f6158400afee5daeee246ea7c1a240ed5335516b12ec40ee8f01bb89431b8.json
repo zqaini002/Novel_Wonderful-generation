@@ -1,0 +1,1 @@
+{"ast":null,"code":"export var REDRAW_BIT = 1;\nexport var STYLE_CHANGED_BIT = 2;\nexport var SHAPE_CHANGED_BIT = 4;","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

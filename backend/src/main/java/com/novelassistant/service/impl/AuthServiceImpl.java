@@ -64,6 +64,13 @@ public class AuthServiceImpl implements AuthService {
             User user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
             if (user != null) {
                 logger.debug("用户存在: {}, 密码加密值: {}", user.getUsername(), user.getPassword());
+                
+                // 检查用户是否被禁用
+                if (!user.isEnabled()) {
+                    logger.warn("用户 {} 已被禁用，拒绝登录", user.getUsername());
+                    throw new BadCredentialsException("账号已被禁用，请联系管理员");
+                }
+                
                 // 记录密码验证细节，但不暴露原始密码
                 authLogger.logPasswordVerification(user.getUsername(), loginRequest.getPassword(), user.getPassword());
             } else {

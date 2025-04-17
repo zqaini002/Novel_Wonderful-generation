@@ -32,6 +32,47 @@ class AuthService {
         localStorage.setItem('user', JSON.stringify(userData));
         
         return userData;
+      })
+      .catch(error => {
+        console.log('登录错误详情:', error);
+        // 打印完整错误对象的详细内容，便于调试
+        console.log('错误响应数据:', error.response ? {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers
+        } : '无响应数据');
+
+        // 1. 检查响应对象
+        if (error.response) {
+          // 2. 检查响应数据
+          const responseData = error.response.data;
+          
+          // 3. 尝试多种方式判断是否是禁用账户错误
+          const errorMessage = 
+            (typeof responseData === 'string' ? responseData : '') || 
+            (responseData?.message) || 
+            (responseData?.error) || 
+            error.message || '';
+          
+          // 4. 检查错误消息是否包含禁用关键词
+          if (errorMessage.includes('禁用') || 
+              errorMessage.includes('disabled') || 
+              errorMessage.includes('账号已被禁用')) {
+            // 标记为禁用账户错误
+            error.isDisabledAccount = true;
+            error.disabledMessage = '账号已被禁用，请联系管理员';
+            
+            // 创建一个特定的错误对象，覆盖原始错误
+            const disabledError = new Error('账号已被禁用，请联系管理员');
+            disabledError.isDisabledAccount = true;
+            disabledError.response = error.response;
+            throw disabledError;
+          }
+        }
+        
+        // 继续抛出原始错误
+        throw error;
       });
   }
 

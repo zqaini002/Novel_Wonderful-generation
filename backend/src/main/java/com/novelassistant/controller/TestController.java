@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "http://localhost:8081", allowCredentials = "true", maxAge = 3600)
 @RestController
-@RequestMapping("/api/test")
+@RequestMapping("/test")
 public class TestController {
     
     @GetMapping("/public")

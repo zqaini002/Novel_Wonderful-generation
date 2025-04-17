@@ -91,6 +91,11 @@
               系统日志
             </el-button>
             
+            <el-button @click="goToVisualization">
+              <el-icon><PieChart /></el-icon>
+              小说可视化
+            </el-button>
+            
             <el-button @click="clearCache">
               <el-icon><Delete /></el-icon>
               清理缓存
@@ -106,7 +111,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { User, UserFilled, Reading, Loading, Check, Document, Delete } from '@element-plus/icons-vue'
+import { User, UserFilled, Reading, Loading, Check, Document, Delete, PieChart } from '@element-plus/icons-vue'
 import adminService from '@/api/admin'
 
 const router = useRouter()
@@ -178,6 +183,11 @@ const goToNovelManagement = () => {
 // 导航到系统日志
 const goToSystemLogs = () => {
   router.push('/admin/logs')
+}
+
+// 导航到小说可视化
+const goToVisualization = () => {
+  router.push('/admin/visualization')
 }
 
 // 清理缓存

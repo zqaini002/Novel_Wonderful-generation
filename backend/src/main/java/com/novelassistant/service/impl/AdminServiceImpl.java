@@ -94,31 +94,6 @@ public class AdminServiceImpl implements AdminService {
     }
     
     @Override
-    public Map<String, Object> getSystemLogs(int page, int size) {
-        // 这里是模拟实现，实际项目中应该从日志文件或数据库中读取日志
-        Map<String, Object> result = new HashMap<>();
-        List<Map<String, Object>> logs = new ArrayList<>();
-        
-        // 模拟添加10条日志数据
-        for (int i = page * size; i < (page * size) + size && i < 100; i++) {
-            Map<String, Object> log = new HashMap<>();
-            log.put("id", i + 1);
-            log.put("timestamp", new Date(System.currentTimeMillis() - (i * 3600000)));
-            log.put("level", i % 5 == 0 ? "ERROR" : (i % 3 == 0 ? "WARN" : "INFO"));
-            log.put("message", "系统日志消息样例 #" + (i + 1));
-            log.put("source", "AdminService");
-            logs.add(log);
-        }
-        
-        result.put("logs", logs);
-        result.put("total", 100); // 假设总共有100条日志
-        result.put("page", page);
-        result.put("size", size);
-        
-        return result;
-    }
-    
-    @Override
     public void clearSystemCache() {
         // 实际项目中应该清理应用缓存
         // 这里只是模拟实现

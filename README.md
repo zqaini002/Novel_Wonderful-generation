@@ -71,7 +71,13 @@
 
 ## 📅 开发日志
 
-<<<<<<< HEAD
+### 2025年4月17日
+| 时间 | 工作内容 | 状态 |
+|------|---------|------|
+| **09:00-11:30** | 修复前端可视化组件的ECharts库依赖问题<br>更新所有图表组件直接导入echarts | ✅ |
+| **13:30-15:30** | 优化小说结构分析图表组件<br>修复关键词云组件wordcloud依赖问题<br>统一echarts导入和初始化方式 | ✅ |
+| **16:00-17:30** | 调整echarts引用<br>成功构建前端项目验证修复<br>解决编译警告并提升加载性能<br>优化系统日志格式与存储方式 | ✅ |
+
 ### 2025年4月15日
 | 时间 | 工作内容 | 状态 |
 |------|---------|------|
@@ -79,10 +85,7 @@
 | **13:30-15:30** | 升级Spring Boot至3.x版本<br>更新所有javax.*包引用为jakarta.*<br>修复JwtUtils兼容性问题 | ✅ |
 | **16:00-17:30** | 增强错误处理和日志记录<br>添加API响应调试功能<br>实现数据模型默认值设置 | ✅ |
 
-=======
->>>>>>> 56fa405c57c0515dd81fb6ded42b7951c10604f1
 ### 2025年4月14日
-
 | 时间            | 工作内容                                                     | 状态 |
 | --------------- | ------------------------------------------------------------ | ---- |
 | **09:30-11:30** | 解决Spring Security循环依赖问题<br>修复AccessDeniedException错误 | ✅    |
@@ -263,45 +266,38 @@
 ### 后端技术详情
 
 #### 🔧 核心框架
-<<<<<<< HEAD
-<<<<<<< HEAD
-* **JDK**: Oracle JDK 17 (LTS版本)
-=======
-=======
->>>>>>> 56fa405c57c0515dd81fb6ded42b7951c10604f1
 
 * **JDK**: Oracle JDK 11.0.21 (LTS版本)
->>>>>>> e765aaea91b3d7c00d44675925b1b6f6bb5af2c0
-  * 支持模块化系统
-  * 增强型字符串API
-  * 改进的垃圾收集器
-  * 封闭类功能
+  * Modular System Support
+  * Enhanced String API
+  * Improved Garbage Collector
+  * Sealed Classes
 * **Spring生态系统**:
   * Spring Boot 3.2.4
-    * 自动配置
-    * 嵌入式服务器 (Tomcat 10.1.x)
-    * 生产就绪功能
-    * Jakarta EE 10支持
+    * Auto-configuration
+    * Embedded Server (Tomcat 10.1.x)
+    * Production-ready Features
+    * Jakarta EE 10 Support
   * Spring Framework 6.1.x
-    * IoC容器
-    * AOP支持
-    * WebMVC框架
+    * IoC Container
+    * AOP Support
+    * WebMVC Framework
   * Spring Security 6.2.x
-    * 认证和授权
-    * 密码加密 (BCrypt)
-    * CORS配置
+    * Authentication & Authorization
+    * Password Encryption (BCrypt)
+    * CORS Configuration
   * Spring Data JPA 3.2.x
-    * Repository模式
-    * 动态查询生成
-    * 审计功能
+    * Repository Pattern
+    * Dynamic Query Generation
+    * Audit Features
 
 #### 💾 数据持久层
 
 * **ORM框架**: 
   * Hibernate 6.4.x
-    * 二级缓存
-    * 懒加载
-    * 批处理
+    * Second-level Cache
+    * Lazy Loading
+    * Batch Processing
 * **数据库**: 
   * MySQL 8.2.0
     * InnoDB引擎
@@ -309,18 +305,11 @@
     * 优化索引
 
 #### 🔐 安全框架
-<<<<<<< HEAD
-<<<<<<< HEAD
-* **JWT**: jjwt 0.12.3
-=======
-=======
->>>>>>> 56fa405c57c0515dd81fb6ded42b7951c10604f1
 
 * **JWT**: jjwt 0.11.5
->>>>>>> e765aaea91b3d7c00d44675925b1b6f6bb5af2c0
-  * 无状态认证
-  * 可配置过期时间
-  * 刷新令牌支持
+  * Stateless Authentication
+  * Configurable Expiration
+  * Refresh Token Support
 * **加密算法**:
   * BCrypt (10轮加密)
   * HTTPS/TLS 1.3
@@ -598,183 +587,6 @@ npm run serve
 ### Backend Technical Details
 
 #### 🔧 Core Framework
-<<<<<<< HEAD
-<<<<<<< HEAD
-* **JDK**: Oracle JDK 17 (LTS Version)
-=======
-=======
->>>>>>> 56fa405c57c0515dd81fb6ded42b7951c10604f1
-
-* **JDK**: Oracle JDK 11.0.21 (LTS Version)
->>>>>>> e765aaea91b3d7c00d44675925b1b6f6bb5af2c0
-  * Modular System Support
-  * Enhanced String API
-  * Improved Garbage Collector
-  * Sealed Classes
-* **Spring Ecosystem**:
-  * Spring Boot 3.2.4
-    * Auto-configuration
-    * Embedded Server (Tomcat 10.1.x)
-    * Production-ready Features
-    * Jakarta EE 10 Support
-  * Spring Framework 6.1.x
-    * IoC Container
-    * AOP Support
-    * WebMVC Framework
-  * Spring Security 6.2.x
-    * Authentication & Authorization
-    * Password Encryption (BCrypt)
-    * CORS Configuration
-  * Spring Data JPA 3.2.x
-    * Repository Pattern
-    * Dynamic Query Generation
-    * Audit Features
-
-#### 💾 Data Persistence Layer
-
-* **ORM Framework**: 
-  * Hibernate 6.4.x
-    * Second-level Cache
-    * Lazy Loading
-    * Batch Processing
-* **Database**: 
-  * MySQL 8.2.0
-    * InnoDB Engine
-    * UTF8MB4 Character Set
-    * Optimized Indexes
-
-#### 🔐 Security Framework
-<<<<<<< HEAD
-<<<<<<< HEAD
-* **JWT**: jjwt 0.12.3
-=======
-=======
->>>>>>> 56fa405c57c0515dd81fb6ded42b7951c10604f1
-
-* **JWT**: jjwt 0.11.5
->>>>>>> e765aaea91b3d7c00d44675925b1b6f6bb5af2c0
-  * Stateless Authentication
-  * Configurable Expiration
-  * Refresh Token Support
-* **Encryption**:
-  * BCrypt (10 Rounds)
-  * HTTPS/TLS 1.3
-* **Security Protection**:
-  * XSS Protection
-  * CSRF Protection
-  * SQL Injection Protection
-
-#### 📝 Document Processing
-
-* **Text Parsing**:
-  * JSoup 1.16.2 (HTML Parsing)
-  * Apache PDFBox 3.0.1
-  * Apache POI 5.2.5 (Office Documents)
-* **Natural Language Processing**:
-  * HanLP portable-1.8.4
-    * Chinese Word Segmentation
-    * Named Entity Recognition
-    * Keyword Extraction
-  * OpenNLP 2.3.1
-
-### Frontend Technical Details
-
-#### 🎨 Core Framework
-
-* **Vue.js 3.2.47**:
-  * Composition API
-  * Reactive System
-  * Virtual DOM
-* **State Management**:
-  * Vuex 4.0.2
-    * State Persistence
-    * Modular Management
-* **Routing**:
-  * Vue Router 4.1.6
-    * Dynamic Routing
-    * Route Guards
-    * Lazy Loading
-
-#### 🎯 UI Framework
-
-* **Element Plus 2.3.5**:
-  * Responsive Layout
-  * Theme Customization
-  * Internationalization
-* **Visualization**:
-  * ECharts 5.4.2
-    * Chart Components
-    * Data Visualization
-  * D3.js 7.8.5
-
-#### 🔄 Tool Chain
-
-* **Build Tools**:
-  * Vite 4.3.9
-    * Fast Hot Reload
-    * On-demand Compilation
-* **Package Management**:
-  * Node.js 16.20.1
-  * npm 8.19.4
-* **Code Quality**:
-  * ESLint 8.41.0
-  * Prettier 2.8.8
-* **Testing Framework**:
-  * Jest 29.5.0
-  * Vue Test Utils 2.3.2
-
-### 🛠️ Development & Deployment Tools
-
-#### Build Tools
-
-* **Maven 3.8.8**:
-  * Dependency Management
-  * Lifecycle Management
-  * Multi-module Builds
-* **Gradle 7.6.1** (Optional):
-  * Incremental Builds
-  * Build Cache
-
-#### Containerization
-
-* **Docker 24.0.2**:
-  * Multi-stage Builds
-  * Container Orchestration
-* **Docker Compose 2.18.1**:
-  * Service Definition
-  * Environment Configuration
-
-#### CI/CD
-
-* **Jenkins 2.401.1**:
-  * Pipeline as Code
-  * Automated Deployment
-* **Git 2.40.1**:
-  * Version Control
-  * Branch Management
-
-#### Monitoring Tools
-
-* **Spring Boot Actuator**:
-  * Health Checks
-  * Metrics Collection
-* **Prometheus + Grafana**:
-  * Performance Monitoring
-  * Visualization Dashboard
-
----
-
-<div align="center">
-  <sub>Built with ❤️ | MIT License</sub>
-</div> 
-
-<<<<<<< HEAD
-=======
-## ⚙️ Technical Stack (English Version)
-
-### Backend Technical Details
-
-#### 🔧 Core Framework
 
 * **JDK**: Oracle JDK 11.0.21 (LTS Version)
   * Modular System Support
@@ -929,163 +741,3 @@ npm run serve
   <sub>Built with ❤️ | MIT License</sub>
 </div> 
 
-## ⚙️ Technical Stack (English Version)
-
-### Backend Technical Details
-
-#### 🔧 Core Framework
-
-* **JDK**: Oracle JDK 11.0.21 (LTS Version)
-  * Modular System Support
-  * Enhanced String API
-  * Improved Garbage Collector
-* **Spring Ecosystem**:
-  * Spring Boot 2.7.12
-    * Auto-configuration
-    * Embedded Server (Tomcat 9.0.73)
-    * Production-ready Features
-  * Spring Framework 5.3.27
-    * IoC Container
-    * AOP Support
-    * WebMVC Framework
-  * Spring Security 5.7.8
-    * Authentication & Authorization
-    * Password Encryption (BCrypt)
-    * CORS Configuration
-  * Spring Data JPA 2.7.12
-    * Repository Pattern
-    * Dynamic Query Generation
-    * Audit Features
-
-#### 💾 Data Persistence Layer
-
-* **ORM Framework**: 
-  * Hibernate 5.6.15.Final
-    * Second-level Cache
-    * Lazy Loading
-    * Batch Processing
-* **Database**: 
-  * MySQL 8.0.33
-    * InnoDB Engine
-    * UTF8MB4 Character Set
-    * Optimized Indexes
-
-#### 🔐 Security Framework
-
-* **JWT**: jjwt 0.11.5
-  * Stateless Authentication
-  * Configurable Expiration
-  * Refresh Token Support
-* **Encryption**:
-  * BCrypt (10 Rounds)
-  * HTTPS/TLS 1.3
-* **Security Protection**:
-  * XSS Protection
-  * CSRF Protection
-  * SQL Injection Protection
-
-#### 📝 Document Processing
-
-* **Text Parsing**:
-  * JSoup 1.16.1 (HTML Parsing)
-  * Apache PDFBox 2.0.27
-  * Apache POI 5.2.3 (Office Documents)
-* **Natural Language Processing**:
-  * HanLP portable-1.8.4
-    * Chinese Word Segmentation
-    * Named Entity Recognition
-    * Keyword Extraction
-  * OpenNLP 1.9.4
-
-### Frontend Technical Details
-
-#### 🎨 Core Framework
-
-* **Vue.js 3.2.47**:
-  * Composition API
-  * Reactive System
-  * Virtual DOM
-* **State Management**:
-  * Vuex 4.0.2
-    * State Persistence
-    * Modular Management
-* **Routing**:
-  * Vue Router 4.1.6
-    * Dynamic Routing
-    * Route Guards
-    * Lazy Loading
-
-#### 🎯 UI Framework
-
-* **Element Plus 2.3.5**:
-  * Responsive Layout
-  * Theme Customization
-  * Internationalization
-* **Visualization**:
-  * ECharts 5.4.2
-    * Chart Components
-    * Data Visualization
-  * D3.js 7.8.5
-
-#### 🔄 Tool Chain
-
-* **Build Tools**:
-  * Vite 4.3.9
-    * Fast Hot Reload
-    * On-demand Compilation
-* **Package Management**:
-  * Node.js 16.20.1
-  * npm 8.19.4
-* **Code Quality**:
-  * ESLint 8.41.0
-  * Prettier 2.8.8
-* **Testing Framework**:
-  * Jest 29.5.0
-  * Vue Test Utils 2.3.2
-
-### 🛠️ Development & Deployment Tools
-
-#### Build Tools
-
-* **Maven 3.8.8**:
-  * Dependency Management
-  * Lifecycle Management
-  * Multi-module Builds
-* **Gradle 7.6.1** (Optional):
-  * Incremental Builds
-  * Build Cache
-
-#### Containerization
-
-* **Docker 24.0.2**:
-  * Multi-stage Builds
-  * Container Orchestration
-* **Docker Compose 2.18.1**:
-  * Service Definition
-  * Environment Configuration
-
-#### CI/CD
-
-* **Jenkins 2.401.1**:
-  * Pipeline as Code
-  * Automated Deployment
-* **Git 2.40.1**:
-  * Version Control
-  * Branch Management
-
-#### Monitoring Tools
-
-* **Spring Boot Actuator**:
-  * Health Checks
-  * Metrics Collection
-* **Prometheus + Grafana**:
-  * Performance Monitoring
-  * Visualization Dashboard
-
----
-
-<div align="center">
-  <sub>Built with ❤️ | MIT License</sub>
-</div> 
-
->>>>>>> 56fa405c57c0515dd81fb6ded42b7951c10604f1

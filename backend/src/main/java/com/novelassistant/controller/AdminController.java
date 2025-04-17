@@ -3,6 +3,7 @@ package com.novelassistant.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import com.novelassistant.entity.Novel;
 import com.novelassistant.entity.User;
 import com.novelassistant.service.AdminService;
 import com.novelassistant.service.NovelService;
+import com.novelassistant.repository.UserRepository;
 
 import java.util.*;
 
@@ -18,7 +20,7 @@ import java.util.*;
  * 后台管理控制器，提供管理员操作的API接口
  */
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/admin")
 @CrossOrigin(origins = "http://localhost:8081", allowCredentials = "true", maxAge = 3600)
 @PreAuthorize("hasRole('ADMIN')")  // 只有ADMIN角色的用户才能访问这些接口
 public class AdminController {
@@ -30,6 +32,12 @@ public class AdminController {
     
     @Autowired
     private NovelService novelService;
+    
+    @Autowired
+    private PasswordEncoder encoder;
+    
+    @Autowired
+    private UserRepository userRepository;
     
     /**
      * 获取系统统计信息
@@ -86,18 +94,64 @@ public class AdminController {
      * 修改用户状态（启用/禁用）
      */
     @PutMapping("/users/{id}/status")
-    public ResponseEntity<?> updateUserStatus(
-            @PathVariable("id") Long id,
-            @RequestParam("enabled") boolean enabled) {
-        logger.info("接收到修改用户状态请求, 用户ID: {}, 启用状态: {}", id, enabled);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateUserStatus(@PathVariable Long id, @RequestBody Map<String, Boolean> statusMap) {
+        logger.info("接收到修改用户状态请求, 用户ID: {}, 状态数据: {}", id, statusMap);
         try {
-            User user = adminService.updateUserStatus(id, enabled);
-            logger.info("用户状态修改成功, 用户: {}, 新状态: {}", user.getUsername(), enabled);
-            return ResponseEntity.ok(user);
+            if (statusMap == null || !statusMap.containsKey("enabled")) {
+                logger.error("请求参数错误，缺少enabled字段");
+                return ResponseEntity.badRequest().body(Map.of("message", "请求参数错误，缺少enabled字段"));
+            }
+            
+            boolean enabled = statusMap.get("enabled");
+            logger.info("用户ID: {}, 目标状态: {}", id, enabled);
+            
+            User user = adminService.getUserById(id);
+            
+            if (user == null) {
+                logger.error("用户不存在, ID: {}", id);
+                return ResponseEntity.notFound().build();
+            }
+            
+            // 检查是否试图禁用唯一的管理员
+            if (!enabled && isLastAdmin(user)) {
+                logger.error("无法禁用唯一的管理员账户, 用户: {}", user.getUsername());
+                return ResponseEntity.badRequest().body(Map.of("message", "无法禁用唯一的管理员账户"));
+            }
+            
+            User updatedUser = adminService.updateUserStatus(id, enabled);
+            logger.info("用户状态更新成功, 用户: {}, 新状态: {}", updatedUser.getUsername(), enabled);
+            
+            return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
-            logger.error("修改用户状态失败, 用户ID: " + id, e);
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+            logger.error("更新用户状态失败, 用户ID: " + id, e);
+            return ResponseEntity.badRequest().body(Map.of("message", "更新用户状态失败: " + e.getMessage()));
         }
+    }
+    
+    /**
+     * 检查用户是否是最后一个管理员
+     */
+    private boolean isLastAdmin(User user) {
+        // 检查这个用户是否有管理员角色
+        boolean userIsAdmin = user.getRoles().stream()
+                .anyMatch(role -> "ROLE_ADMIN".equals(role.getName()));
+        
+        if (!userIsAdmin) {
+            return false; // 如果用户不是管理员，就不是最后一个管理员
+        }
+        
+        // 计算启用状态的管理员数量
+        int adminCount = 0;
+        List<User> allUsers = userRepository.findAll();
+        for (User u : allUsers) {
+            if (u.isEnabled() && u.getRoles().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getName()))) {
+                adminCount++;
+            }
+        }
+        
+        // 如果只有一个启用状态的管理员，且就是这个用户，那么这是最后一个管理员
+        return adminCount <= 1;
     }
     
     /**
@@ -152,24 +206,6 @@ public class AdminController {
     }
     
     /**
-     * 获取系统日志
-     */
-    @GetMapping("/logs")
-    public ResponseEntity<?> getSystemLogs(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size) {
-        logger.info("接收到获取系统日志请求, 页码: {}, 每页大小: {}", page, size);
-        try {
-            Map<String, Object> logs = adminService.getSystemLogs(page, size);
-            logger.info("获取系统日志成功, 共 {} 条日志", logs.get("total"));
-            return ResponseEntity.ok(logs);
-        } catch (Exception e) {
-            logger.error("获取系统日志失败", e);
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
-        }
-    }
-    
-    /**
      * 清理系统缓存
      */
     @PostMapping("/cache/clear")
@@ -182,6 +218,45 @@ public class AdminController {
         } catch (Exception e) {
             logger.error("清理系统缓存失败", e);
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+    
+    /**
+     * 更新用户信息
+     */
+    @PutMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateUserInfo(@PathVariable Long id, @RequestBody Map<String, String> userData) {
+        try {
+            User user = adminService.getUserById(id);
+            
+            if (user == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // 更新密码
+            if (userData.containsKey("password")) {
+                String newPassword = userData.get("password");
+                if (newPassword != null && !newPassword.isEmpty()) {
+                    user.setPassword(encoder.encode(newPassword));
+                }
+            }
+            
+            // 可以添加更多用户信息更新逻辑，例如邮箱等
+            if (userData.containsKey("email")) {
+                String newEmail = userData.get("email");
+                if (newEmail != null && !newEmail.isEmpty()) {
+                    user.setEmail(newEmail);
+                }
+            }
+            
+            // 直接应用变更到已获取的用户对象
+            User updatedUser = adminService.updateUserStatus(id, user.isEnabled());
+            
+            return ResponseEntity.ok(Map.of("message", "用户信息已更新", "userId", id));
+        } catch (Exception e) {
+            logger.error("更新用户信息失败", e);
+            return ResponseEntity.badRequest().body(Map.of("message", "更新用户信息失败: " + e.getMessage()));
         }
     }
 } 

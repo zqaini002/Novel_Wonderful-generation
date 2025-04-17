@@ -137,13 +137,13 @@ public class NovelServiceImpl implements NovelService {
     @Override
     public List<Chapter> getChaptersByNovelId(Long novelId) {
         Novel novel = getNovelById(novelId);
-        return chapterRepository.findByNovelOrderByChapterNumberAsc(novel);
+        return chapterRepository.findByNovelIdOrderByChapterNumberAsc(novel.getId());
     }
     
     @Override
     public List<Tag> getTagsByNovelId(Long novelId) {
         Novel novel = getNovelById(novelId);
-        return tagRepository.findByNovel(novel);
+        return tagRepository.findByNovelId(novel.getId());
     }
     
     @Override

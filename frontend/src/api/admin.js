@@ -25,7 +25,15 @@ const adminService = {
     if (!userId) {
       throw new Error('用户ID不能为空');
     }
-    return apiClient.put(`/admin/users/${userId}/status?enabled=${enabled}`);
+    return apiClient.put(`/admin/users/${userId}/status`, { enabled });
+  },
+
+  // 修改用户信息（包括密码）
+  async updateUserInfo(userId, userData) {
+    if (!userId) {
+      throw new Error('用户ID不能为空');
+    }
+    return apiClient.put(`/admin/users/${userId}`, userData);
   },
 
   // 删除用户
@@ -50,8 +58,38 @@ const adminService = {
   },
 
   // 获取系统日志
-  async getSystemLogs(page = 0, size = 20) {
-    return apiClient.get(`/admin/logs?page=${page}&size=${size}`);
+  async getSystemLogs(page = 0, size = 20, filters = {}) {
+    let url = `/admin/logs?page=${page}&size=${size}`;
+    
+    // 添加日志级别筛选
+    if (filters.level && filters.level !== 'ALL') {
+      url += `&level=${filters.level}`;
+    }
+    
+    // 添加日期范围筛选
+    if (filters.startDate) {
+      url += `&startDate=${filters.startDate}`;
+    }
+    
+    if (filters.endDate) {
+      url += `&endDate=${filters.endDate}`;
+    }
+    
+    // 添加搜索关键词
+    if (filters.query) {
+      url += `&query=${encodeURIComponent(filters.query)}`;
+    }
+    
+    // 添加用户ID筛选
+    if (filters.userId) {
+      // 确保userId作为字符串传递
+      url += `&userId=${String(filters.userId)}`;
+    }
+    
+    // 输出完整URL供调试
+    console.log('系统日志请求URL:', url);
+    
+    return apiClient.get(url);
   },
 
   // 清理系统缓存

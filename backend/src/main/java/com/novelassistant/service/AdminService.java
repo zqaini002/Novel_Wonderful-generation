@@ -49,14 +49,6 @@ public interface AdminService {
     void deleteNovel(Long id);
     
     /**
-     * 获取系统日志
-     * @param page 页码
-     * @param size 每页大小
-     * @return 系统日志
-     */
-    Map<String, Object> getSystemLogs(int page, int size);
-    
-    /**
      * 清理系统缓存
      */
     void clearSystemCache();

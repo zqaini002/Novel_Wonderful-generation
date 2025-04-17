@@ -51,6 +51,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                     // 加载用户详情
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     
+                    // 检查用户是否被禁用
+                    if (!userDetails.isEnabled()) {
+                        logger.warn("用户 {} 已被禁用，拒绝访问 API: {}", username, request.getRequestURI());
+                        // 不设置认证，这样请求会被视为未认证
+                        return;
+                    }
+                    
                     // 创建认证令牌
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());

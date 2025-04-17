@@ -147,7 +147,43 @@ export default {
             }
           })
           .catch(error => {
-            errorMessage.value = error.response?.data?.message || '登录失败，请检查用户名和密码'
+            console.log('登录界面捕获到错误:', error);
+            
+            // 处理账号禁用的错误消息
+            if (error.isDisabledAccount || 
+                (error.message && error.message.includes('禁用'))) {
+              errorMessage.value = '账号已被禁用，请联系管理员';
+              return;
+            }
+            
+            // 处理密码错误
+            if (error.response && error.response.status === 401) {
+              errorMessage.value = '用户名或密码错误';
+              return;
+            }
+            
+            // 处理服务器返回的其他明确错误信息
+            if (error.response && error.response.data) {
+              const responseData = error.response.data;
+              let responseMsg = '';
+              
+              if (typeof responseData === 'string') {
+                responseMsg = responseData;
+              } else if (responseData.message) {
+                responseMsg = responseData.message;
+              } else if (responseData.error) {
+                responseMsg = responseData.error;
+              }
+              
+              if (responseMsg) {
+                errorMessage.value = responseMsg;
+                return;
+              }
+            }
+            
+            // 默认错误消息
+            errorMessage.value = '登录失败，请稍后再试';
+            console.error('登录失败:', error);
           })
           .finally(() => {
             loading.value = false

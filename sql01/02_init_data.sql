@@ -96,13 +96,3 @@ VALUES
 ((SELECT id FROM novels WHERE title = '西游记' LIMIT 1), '佛教', 'INFO', DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 5 DAY)),
 ((SELECT id FROM novels WHERE title = '西游记' LIMIT 1), '冒险', 'POSITIVE', DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 5 DAY));
 
--- 添加系统日志数据
-INSERT INTO system_logs (timestamp, level, logger, thread, message, user_id, ip)
-VALUES 
-(DATE_SUB(NOW(), INTERVAL 30 DAY), 'INFO', 'com.novelassistant.controller.AuthController', 'http-nio-8080-exec-1', '用户登录成功: admin', (SELECT id FROM users WHERE username = 'admin'), '127.0.0.1'),
-(DATE_SUB(NOW(), INTERVAL 25 DAY), 'INFO', 'com.novelassistant.controller.NovelController', 'http-nio-8080-exec-2', '小说上传成功: 红楼梦', (SELECT id FROM users WHERE username = 'admin'), '127.0.0.1'),
-(DATE_SUB(NOW(), INTERVAL 20 DAY), 'INFO', 'com.novelassistant.controller.AuthController', 'http-nio-8080-exec-3', '用户注册成功: user', NULL, '127.0.0.1'),
-(DATE_SUB(NOW(), INTERVAL 15 DAY), 'INFO', 'com.novelassistant.controller.NovelController', 'http-nio-8080-exec-4', '小说上传成功: 哈利·波特与魔法石', (SELECT id FROM users WHERE username = 'user'), '127.0.0.1'),
-(DATE_SUB(NOW(), INTERVAL 10 DAY), 'WARN', 'com.novelassistant.service.NovelService', 'task-scheduler-1', '小说处理超时: 西游记', (SELECT id FROM users WHERE username = 'user'), NULL),
-(DATE_SUB(NOW(), INTERVAL 5 DAY), 'INFO', 'com.novelassistant.controller.NovelController', 'http-nio-8080-exec-5', '小说上传成功: 西游记', (SELECT id FROM users WHERE username = 'user'), '127.0.0.1'),
-(DATE_SUB(NOW(), INTERVAL 1 DAY), 'ERROR', 'com.novelassistant.service.AnalysisService', 'task-scheduler-2', '文本分析失败: 内存不足', NULL, NULL); 

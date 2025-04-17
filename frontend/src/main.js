@@ -6,6 +6,13 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
+// 导入ECharts和wordcloud
+import * as echarts from 'echarts'
+import 'echarts-wordcloud'
+
+// 将ECharts挂载到全局window对象上，兼容现有组件
+window.echarts = echarts;
+
 // 忽略 ResizeObserver 循环错误
 const originalConsoleError = window.console.error;
 window.console.error = (...args) => {

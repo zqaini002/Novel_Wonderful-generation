@@ -90,12 +90,14 @@ public class SecurityConfiguration {
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/test/public").permitAll()
-                .requestMatchers("/api/novels/demo/**").permitAll() // 演示数据无需认证
-                .requestMatchers("/api/novels/*/status").permitAll() // 小说处理状态查询无需认证
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/test/public").permitAll()
+                .requestMatchers("/novels/demo/**").permitAll() // 演示数据无需认证
+                .requestMatchers("/novels/*/status").permitAll() // 小说处理状态查询无需认证
                 // 暂时开放更多API权限，方便开发测试
-                .requestMatchers("/api/novels/**").permitAll() // 开放所有小说相关接口
+                .requestMatchers("/novels/**").permitAll() // 开放所有小说相关接口
+                .requestMatchers("/admin/logs/**").hasRole("ADMIN") // 系统日志专门的权限控制
+                .requestMatchers("/admin/**").hasRole("ADMIN") // 管理员API权限控制
                 .requestMatchers("/error").permitAll() // 允许错误页面访问
                 .anyRequest().authenticated()
             );

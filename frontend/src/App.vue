@@ -51,6 +51,12 @@ export default defineComponent({
             return;
           }
           
+          // 开发环境暂时不验证令牌有效性，直接使用本地存储的信息
+          if (process.env.NODE_ENV === 'development') {
+            store.commit('auth/loginSuccess', userData);
+            return;
+          }
+          
           // 向后端验证令牌有效性
           authService.checkAuthStatus()
             .then(response => {
@@ -126,6 +132,7 @@ export default defineComponent({
   --secondary-color: #5e60ce;
   --background-color: #f9fafc;
   --text-color: #333;
+  --admin-color: #0b3d91;
   --border-color: #eaedf2;
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
