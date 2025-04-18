@@ -50,6 +50,16 @@
         />
       </el-tab-pane>
       
+      <el-tab-pane label="人物关系" name="characters">
+        <character-network-chart 
+          :network-data="characterData" 
+          :loading="loadingCharacters"
+          title="人物关系网络"
+          height="550px"
+          ref="characterNetworkRef"
+        />
+      </el-tab-pane>
+      
       <el-tab-pane label="结构分析" name="structure">
         <structure-analysis-chart 
           :structure-data="structureData" 
@@ -80,7 +90,7 @@
 <script>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { KeywordCloud, PlotTrendChart, StructureAnalysisChart } from '@/components/visualization'
+import { KeywordCloud, PlotTrendChart, StructureAnalysisChart, CharacterNetworkChart } from '@/components/visualization'
 import visualizationService from '@/api/visualization'
 import novelService from '@/services/novel'
 import { ElMessage } from 'element-plus'
@@ -92,6 +102,7 @@ export default {
     KeywordCloud,
     PlotTrendChart,
     StructureAnalysisChart,
+    CharacterNetworkChart,
     Back,
     Refresh,
     Download,
@@ -114,16 +125,19 @@ export default {
     const keywordData = ref([]);
     const emotionalData = ref([]);
     const structureData = ref({});
+    const characterData = ref({ nodes: [], links: [] });
     
     // 图表引用
     const keywordCloudRef = ref(null);
     const plotTrendRef = ref(null);
     const structureChartRef = ref(null);
+    const characterNetworkRef = ref(null);
     
     // 单项加载状态
     const loadingKeywords = ref(false);
     const loadingEmotional = ref(false);
     const loadingStructure = ref(false);
+    const loadingCharacters = ref(false);
     
     // 返回上一页
     const goBack = () => {
@@ -156,6 +170,10 @@ export default {
         case 'emotional':
           chartInstance = plotTrendRef.value?.chartRef?.chart;
           filename = '情节波动图';
+          break;
+        case 'characters':
+          chartInstance = characterNetworkRef.value?.chartRef?.chart;
+          filename = '人物关系网络';
           break;
         case 'structure':
           chartInstance = structureChartRef.value?.chartRef?.chart;
@@ -200,6 +218,9 @@ export default {
           break;
         case 'emotional':
           container = plotTrendRef.value?.$el;
+          break;
+        case 'characters':
+          container = characterNetworkRef.value?.$el;
           break;
         case 'structure':
           container = structureChartRef.value?.$el;
@@ -296,6 +317,21 @@ export default {
       }
     };
     
+    // 获取人物关系网络数据
+    // eslint-disable-next-line no-unused-vars
+    const fetchCharacterData = async (novelId) => {
+      loadingCharacters.value = true;
+      try {
+        const response = await visualizationService.getCharacterRelationshipData(novelId);
+        characterData.value = response.data || { nodes: [], links: [] };
+      } catch (error) {
+        console.error('获取人物关系网络数据失败:', error);
+        errorMessage.value = '获取人物关系网络数据失败: ' + (error.response?.data?.error || error.message);
+      } finally {
+        loadingCharacters.value = false;
+      }
+    };
+    
     // 一次性获取所有可视化数据
     const fetchAllVisualizationData = async (novelId) => {
       loading.value = true;
@@ -303,11 +339,12 @@ export default {
       loadingKeywords.value = true;
       loadingEmotional.value = true;
       loadingStructure.value = true;
+      loadingCharacters.value = true;
       
       try {
         // 尝试获取所有数据，如果失败则单独获取各部分
         try {
-          const response = await visualizationService.getAllVisualizationData(novelId);
+          const response = await visualizationService. getAllVisualizationData(novelId);
           console.log('获取到的可视化数据响应:', response);
           
           // 处理返回数据
@@ -326,12 +363,18 @@ export default {
             if (response.structure) {
               structureData.value = response.structure;
             }
+            
+            // 处理人物关系网络数据
+            if (response.characters) {
+              characterData.value = response.characters;
+            }
           } else {
             console.warn('未获取到可视化数据，服务器返回空响应');
             // 如果服务器返回空响应，使用演示数据
             keywordData.value = generateDemoKeywords();
             emotionalData.value = generateDemoPlotTrend();
             structureData.value = generateDemoStructureData();
+            characterData.value = generateDemoCharacterData();
           }
         } catch (error) {
           console.warn('获取所有数据失败，尝试单独获取各部分:', error);
@@ -390,6 +433,21 @@ export default {
                 console.error('获取结构分析数据失败:', e);
                 structureData.value = generateDemoStructureData(); // 使用演示数据
               }
+            })(),
+            (async () => {
+              try {
+                const response = await visualizationService.getCharacterRelationshipData(novelId);
+                console.log('获取人物关系网络数据响应:', response);
+                if (response && typeof response === 'object') {
+                  characterData.value = response;
+                } else {
+                  console.warn('人物关系网络数据格式不正确:', response);
+                  characterData.value = generateDemoCharacterData(); // 使用演示数据
+                }
+              } catch (e) {
+                console.error('获取人物关系网络数据失败:', e);
+                characterData.value = generateDemoCharacterData(); // 使用演示数据
+              }
             })()
           ]);
         }
@@ -401,11 +459,13 @@ export default {
         keywordData.value = generateDemoKeywords();
         emotionalData.value = generateDemoPlotTrend();
         structureData.value = generateDemoStructureData();
+        characterData.value = generateDemoCharacterData();
       } finally {
         loading.value = false;
         loadingKeywords.value = false;
         loadingEmotional.value = false;
         loadingStructure.value = false;
+        loadingCharacters.value = false;
       }
     };
     
@@ -513,6 +573,46 @@ export default {
       };
     };
     
+    // 生成演示人物关系网络数据
+    const generateDemoCharacterData = () => {
+      return {
+        nodes: [
+          { id: '1', name: '主角', value: 80, category: '主要角色', desc: '小说的主人公' },
+          { id: '2', name: '女主角', value: 70, category: '主要角色', desc: '主要女性角色' },
+          { id: '3', name: '反派', value: 65, category: '主要角色', desc: '故事中的反派角色' },
+          { id: '4', name: '挚友', value: 50, category: '主要角色', desc: '主角的好友' },
+          { id: '5', name: '导师', value: 55, category: '主要角色', desc: '指导主角的人物' },
+          { id: '6', name: '家人1', value: 40, category: '次要角色', desc: '主角的家庭成员' },
+          { id: '7', name: '家人2', value: 35, category: '次要角色', desc: '主角的家庭成员' },
+          { id: '8', name: '朋友1', value: 30, category: '次要角色', desc: '次要朋友角色' },
+          { id: '9', name: '朋友2', value: 30, category: '次要角色', desc: '次要朋友角色' },
+          { id: '10', name: '对手', value: 45, category: '主要角色', desc: '与主角竞争的角色' },
+          { id: '11', name: '配角1', value: 25, category: '次要角色', desc: '故事中的小角色' },
+          { id: '12', name: '配角2', value: 20, category: '次要角色', desc: '故事中的小角色' }
+        ],
+        links: [
+          { source: '1', target: '2', relation: '恋人', value: 5 },
+          { source: '1', target: '3', relation: '宿敌', value: 5 },
+          { source: '1', target: '4', relation: '好友', value: 4 },
+          { source: '1', target: '5', relation: '师徒', value: 4 },
+          { source: '1', target: '6', relation: '亲子', value: 3 },
+          { source: '1', target: '7', relation: '亲子', value: 3 },
+          { source: '1', target: '10', relation: '竞争', value: 3 },
+          { source: '2', target: '3', relation: '敌对', value: 2 },
+          { source: '2', target: '8', relation: '朋友', value: 2 },
+          { source: '4', target: '8', relation: '熟识', value: 1 },
+          { source: '4', target: '9', relation: '熟识', value: 1 },
+          { source: '5', target: '3', relation: '旧识', value: 2 },
+          { source: '5', target: '10', relation: '师徒', value: 2 },
+          { source: '10', target: '11', relation: '下属', value: 1 },
+          { source: '10', target: '12', relation: '下属', value: 1 },
+          { source: '3', target: '11', relation: '下属', value: 1 },
+          { source: '3', target: '12', relation: '下属', value: 1 },
+          { source: '6', target: '7', relation: '伴侣', value: 3 }
+        ]
+      };
+    };
+    
     // 当路由参数变化时重新加载数据
     watch(() => route.params.id, (newId) => {
       if (newId) {
@@ -563,13 +663,16 @@ export default {
       keywordData,
       emotionalData,
       structureData,
+      characterData,
       loadingKeywords,
       loadingEmotional,
       loadingStructure,
+      loadingCharacters,
       activeTab,
       keywordCloudRef,
       plotTrendRef,
       structureChartRef,
+      characterNetworkRef,
       goBack,
       refreshData,
       downloadChart,

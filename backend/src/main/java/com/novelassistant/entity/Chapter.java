@@ -24,7 +24,7 @@ public class Chapter {
     @Column(nullable = false)
     private String title;
     
-    @Column
+    @Column(columnDefinition = "LONGTEXT")
     @Lob
     private String content;
     

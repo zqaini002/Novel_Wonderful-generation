@@ -42,9 +42,10 @@ public interface NovelService {
      * @param file 小说文件
      * @param title 标题
      * @param author 作者
+     * @param userId 上传用户ID
      * @return 处理结果
      */
-    Map<String, Object> processNovel(MultipartFile file, String title, String author);
+    Map<String, Object> processNovel(MultipartFile file, String title, String author, Long userId);
     
     /**
      * 获取小说的章节列表
@@ -66,4 +67,12 @@ public interface NovelService {
      * @return 该用户上传的小说列表
      */
     List<Novel> getNovelsByUserId(Long userId);
+    
+    /**
+     * 删除小说
+     * 
+     * @param id 小说ID
+     * @return 是否删除成功
+     */
+    boolean deleteNovel(Long id);
 } 

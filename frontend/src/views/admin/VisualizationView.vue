@@ -51,32 +51,14 @@
                 <el-icon><DataAnalysis /></el-icon>
                 可视化分析
               </el-button>
-              <el-popover
-                placement="top"
-                width="200"
-                trigger="hover"
+              <el-button
+                size="small"
+                type="info"
+                @click="showNovelDetails(scope.row)"
               >
-                <template #reference>
-                  <el-button
-                    size="small"
-                    type="info"
-                    :disabled="!isNovelComplete(scope.row.status)"
-                  >
-                    <el-icon><InfoFilled /></el-icon>
-                    详情
-                  </el-button>
-                </template>
-                <div class="visualization-popover-content">
-                  <p><b>可视化内容包括：</b></p>
-                  <ul>
-                    <li>关键词云图</li>
-                    <li>情节波动图</li>
-                    <li>人物关系网络</li>
-                    <li>小说结构分析</li>
-                    <li>章节情感分析</li>
-                  </ul>
-                </div>
-              </el-popover>
+                <el-icon><InfoFilled /></el-icon>
+                详情
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -94,6 +76,75 @@
         </div>
       </div>
     </el-card>
+
+    <!-- 小说详情对话框 -->
+    <el-dialog
+      v-model="detailsDialogVisible"
+      title="小说详细信息"
+      width="650px"
+    >
+      <div v-if="!selectedNovel" class="dialog-loading">
+        <el-skeleton :rows="10" animated />
+      </div>
+      <div v-else class="novel-details">
+        <el-descriptions title="基本信息" :column="2" border>
+          <el-descriptions-item label="ID">{{ selectedNovel.id }}</el-descriptions-item>
+          <el-descriptions-item label="标题">{{ selectedNovel.title }}</el-descriptions-item>
+          <el-descriptions-item label="作者">{{ selectedNovel.author }}</el-descriptions-item>
+          <el-descriptions-item label="上传时间">{{ formatDateTime(selectedNovel.createTime) }}</el-descriptions-item>
+          <el-descriptions-item label="状态">
+            <el-tag :type="getStatusType(selectedNovel.status)">{{ getStatusText(selectedNovel.status) }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="最后更新">{{ formatDateTime(selectedNovel.updateTime) }}</el-descriptions-item>
+        </el-descriptions>
+        
+        <el-descriptions title="内容信息" :column="2" border class="detail-section">
+          <el-descriptions-item label="总章节数">{{ selectedNovel.totalChapters || 0 }}</el-descriptions-item>
+          <el-descriptions-item label="已处理章节">{{ selectedNovel.processedChapters || 0 }}</el-descriptions-item>
+          <el-descriptions-item label="总字数">{{ formatWordCount(selectedNovel.wordCount) }}</el-descriptions-item>
+          <el-descriptions-item label="分类">{{ selectedNovel.category || '未分类' }}</el-descriptions-item>
+          <el-descriptions-item label="语言">{{ selectedNovel.language || '中文' }}</el-descriptions-item>
+          <el-descriptions-item label="处理进度">
+            <el-progress 
+              :percentage="calculateProgress(selectedNovel)" 
+              :status="isNovelComplete(selectedNovel.status) ? 'success' : ''"
+            ></el-progress>
+          </el-descriptions-item>
+        </el-descriptions>
+        
+        <el-descriptions title="可视化分析内容" :column="1" border class="detail-section">
+          <el-descriptions-item>
+            <div class="visualization-list">
+              <ul>
+                <li><el-icon><Check /></el-icon> 关键词云图 - 展示小说中的重要关键词及其频率</li>
+                <li><el-icon><Check /></el-icon> 情节波动图 - 跟踪小说情节的情感起伏和关键点</li>
+                <li><el-icon><Check /></el-icon> 人物关系网络 - 可视化小说中角色之间的复杂关系</li>
+                <li><el-icon><Check /></el-icon> 小说结构分析 - 分析小说的整体结构和章节分布</li>
+                <li><el-icon><Check /></el-icon> 章节情感分析 - 每个章节的情感基调和变化趋势</li>
+              </ul>
+            </div>
+          </el-descriptions-item>
+        </el-descriptions>
+        
+        <div v-if="selectedNovel.description" class="novel-description">
+          <h4>小说简介：</h4>
+          <p>{{ selectedNovel.description }}</p>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button 
+            type="primary" 
+            @click="showNovelVisualization(selectedNovel.id)"
+            :disabled="!isNovelComplete(selectedNovel?.status)"
+          >
+            <el-icon><DataAnalysis /></el-icon>
+            查看可视化分析
+          </el-button>
+          <el-button @click="detailsDialogVisible = false">关闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -101,7 +152,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { DataAnalysis, InfoFilled } from '@element-plus/icons-vue'
+import { DataAnalysis, InfoFilled, Check } from '@element-plus/icons-vue'
 import adminService from '@/api/admin'
 
 const router = useRouter()
@@ -110,6 +161,8 @@ const novels = ref([])
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
+const detailsDialogVisible = ref(false)
+const selectedNovel = ref(null)
 
 // 获取小说列表
 const fetchNovels = async () => {
@@ -132,6 +185,29 @@ const fetchNovels = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 显示小说详情
+const showNovelDetails = (novel) => {
+  selectedNovel.value = novel
+  detailsDialogVisible.value = true
+}
+
+// 计算处理进度百分比
+const calculateProgress = (novel) => {
+  if (!novel || !novel.totalChapters || novel.totalChapters === 0) {
+    return 0
+  }
+  return Math.min(100, Math.round((novel.processedChapters || 0) / novel.totalChapters * 100))
+}
+
+// 格式化字数
+const formatWordCount = (count) => {
+  if (!count) return '0'
+  if (count >= 10000) {
+    return `${(count / 10000).toFixed(1)} 万字`
+  }
+  return `${count} 字`
 }
 
 // 刷新数据
@@ -221,7 +297,7 @@ onMounted(() => {
   align-items: center;
 }
 
-.loading-container {
+.loading-container, .dialog-loading {
   padding: 20px;
 }
 
@@ -231,12 +307,48 @@ onMounted(() => {
   justify-content: center;
 }
 
-.visualization-popover-content ul {
-  padding-left: 20px;
-  margin-top: 5px;
+.detail-section {
+  margin-top: 20px;
 }
 
-.visualization-popover-content li {
-  margin-bottom: 5px;
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.visualization-list ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.visualization-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.visualization-list .el-icon {
+  color: #67c23a;
+  margin-right: 8px;
+}
+
+.novel-description {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+}
+
+.novel-description h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #606266;
+}
+
+.novel-description p {
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-line;
 }
 </style> 

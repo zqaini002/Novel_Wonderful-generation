@@ -208,7 +208,9 @@ export default defineComponent({
         await store.dispatch('uploadNovel', formData);
         
         ElMessage.success('提交成功，正在处理中...');
-        router.push('/analyze');
+        // 获取上传后返回的小说ID，并重定向至可视化页面
+        const novelId = store.state.lastUploadedNovelId;
+        router.push(`/novel/${novelId}/visualization`);
       } catch (error) {
         ElMessage.error('提交失败，请重试: ' + (error.message || '未知错误'));
       } finally {

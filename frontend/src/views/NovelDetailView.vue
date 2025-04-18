@@ -137,33 +137,46 @@
               </el-button>
             </div>
             <el-tabs v-model="visualTab" type="card" class="vis-tabs">
-              <el-tab-pane label="关键词云" name="keywords">
-                <div class="vis-container">
+              <el-tab-pane 
+                v-for="tab in visualTabs" 
+                :key="tab.name" 
+                :label="tab.label" 
+                :name="tab.name"
+              >
+                <!-- 关键词云 -->
+                <div v-if="visualTab === 'keywords'" class="vis-container">
                   <p class="vis-description">该关键词云展示了小说中出现频率最高的关键词，词汇大小表示其在小说中的重要程度。</p>
                   <keyword-cloud 
                     :keywords="novel.keywords || []" 
                     title="小说关键词分布"
                     height="400px" />
                 </div>
-              </el-tab-pane>
-              
-              <el-tab-pane label="情节波动图" name="plotTrend">
-                <div class="vis-container">
+
+                <!-- 情节波动图 -->
+                <div v-if="visualTab === 'plotTrend'" class="vis-container">
                   <p class="vis-description">情节波动图展示了小说情感和紧张度随章节的变化，帮助理解故事结构和节奏。</p>
                   <plot-trend-chart
                     :plot-data="novel.plotTrendData || []"
                     title="情节波动趋势"
                     height="400px" />
                 </div>
-              </el-tab-pane>
-              
-              <el-tab-pane label="结构分析" name="structure">
-                <div class="vis-container">
+
+                <!-- 结构分析 -->
+                <div v-if="visualTab === 'structure'" class="vis-container">
                   <p class="vis-description">小说结构分析图展示了小说各部分的比例和关系，帮助理解整体结构布局。</p>
                   <structure-analysis-chart
                     :structure-data="novel.structureData || {}"
                     title="小说结构分析"
-                    height="500px" />
+                    height="400px" />
+                </div>
+
+                <!-- 人物关系 -->
+                <div v-if="visualTab === 'characters'" class="vis-container">
+                  <p class="vis-description">人物关系网络图展示了小说中主要角色之间的关系，节点大小表示角色重要性，连线表示角色间关系。</p>
+                  <character-network-chart
+                    :network-data="novel.characters || { nodes: [], links: [] }"
+                    title="人物关系网络"
+                    height="400px" />
                 </div>
               </el-tab-pane>
             </el-tabs>
@@ -207,6 +220,7 @@ import { InfoFilled, FullScreen } from '@element-plus/icons-vue'
 import KeywordCloud from '@/components/visualization/KeywordCloud.vue'
 import PlotTrendChart from '@/components/visualization/PlotTrendChart.vue'
 import StructureAnalysisChart from '@/components/visualization/StructureAnalysisChart.vue'
+import CharacterNetworkChart from '@/components/visualization/CharacterNetworkChart.vue'
 import { ElMessage } from 'element-plus'
 
 export default {
@@ -216,7 +230,8 @@ export default {
     FullScreen,
     KeywordCloud,
     PlotTrendChart,
-    StructureAnalysisChart
+    StructureAnalysisChart,
+    CharacterNetworkChart
   },
   setup() {
     const route = useRoute()
@@ -276,7 +291,8 @@ export default {
               ...novel.value,
               keywords: visualData.keywords || [],
               plotTrendData: visualData.emotional || [],
-              structureData: visualData.structure || {}
+              structureData: visualData.structure || {},
+              characters: visualData.characters || { nodes: [], links: [] }
             }
           } catch (visError) {
             console.warn('获取可视化数据失败:', visError)
@@ -284,12 +300,14 @@ export default {
             novel.value.keywords = generateDemoKeywords()
             novel.value.plotTrendData = generateDemoPlotTrend()
             novel.value.structureData = generateDemoStructureData()
+            novel.value.characters = generateDemoCharacters()
           }
         } else if (isDemo.value) {
           // 设置默认的演示数据
           novel.value.keywords = generateDemoKeywords()
           novel.value.plotTrendData = generateDemoPlotTrend()
           novel.value.structureData = generateDemoStructureData()
+          novel.value.characters = generateDemoCharacters()
         }
         
       } catch (err) {
@@ -404,6 +422,40 @@ export default {
       }
     }
     
+    // 生成演示人物关系数据
+    const generateDemoCharacters = () => {
+      return {
+        nodes: [
+          { id: '1', name: '主角', value: 80, category: '主要角色', desc: `${novel.value.title}的主人公` },
+          { id: '2', name: '女主角', value: 70, category: '主要角色', desc: '主要女性角色' },
+          { id: '3', name: '反派', value: 65, category: '主要角色', desc: '故事中的反派角色' },
+          { id: '4', name: '挚友', value: 50, category: '主要角色', desc: '主角的好友' },
+          { id: '5', name: '导师', value: 55, category: '主要角色', desc: '指导主角的人物' },
+          { id: '6', name: '家人1', value: 40, category: '次要角色', desc: '主角的家庭成员' },
+          { id: '7', name: '家人2', value: 35, category: '次要角色', desc: '主角的家庭成员' },
+          { id: '8', name: '朋友1', value: 30, category: '次要角色', desc: '次要朋友角色' },
+          { id: '9', name: '朋友2', value: 30, category: '次要角色', desc: '次要朋友角色' },
+          { id: '10', name: '对手', value: 45, category: '主要角色', desc: '与主角竞争的角色' }
+        ],
+        links: [
+          { source: '1', target: '2', relation: '恋人', value: 5 },
+          { source: '1', target: '3', relation: '宿敌', value: 5 },
+          { source: '1', target: '4', relation: '好友', value: 4 },
+          { source: '1', target: '5', relation: '师徒', value: 4 },
+          { source: '1', target: '6', relation: '亲子', value: 3 },
+          { source: '1', target: '7', relation: '亲子', value: 3 },
+          { source: '2', target: '3', relation: '敌对', value: 2 },
+          { source: '2', target: '8', relation: '朋友', value: 2 },
+          { source: '4', target: '8', relation: '熟识', value: 1 },
+          { source: '4', target: '9', relation: '熟识', value: 1 },
+          { source: '5', target: '3', relation: '旧识', value: 2 },
+          { source: '5', target: '10', relation: '师徒', value: 2 },
+          { source: '6', target: '7', relation: '伴侣', value: 3 },
+          { source: '3', target: '10', relation: '合作', value: 2 }
+        ]
+      }
+    }
+    
     const viewChapterSummary = (chapter) => {
       selectedChapter.value = chapter
       setTimeout(() => {
@@ -442,6 +494,14 @@ export default {
       });
     }
     
+    // 可视化标签页选项
+    const visualTabs = ref([
+      { name: 'keywords', label: '关键词云' },
+      { name: 'plotTrend', label: '情节波动图' },
+      { name: 'structure', label: '结构分析' },
+      { name: 'characters', label: '人物关系' }
+    ])
+    
     onMounted(() => {
       fetchNovelDetails()
     })
@@ -460,7 +520,8 @@ export default {
       chaptersLoading,
       getTagsByType,
       isDemo,
-      navigateToVisualization
+      navigateToVisualization,
+      visualTabs
     }
   }
 }

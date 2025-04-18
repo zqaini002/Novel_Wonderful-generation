@@ -3,9 +3,13 @@ package com.novelassistant.service.impl;
 import com.novelassistant.entity.Chapter;
 import com.novelassistant.entity.Novel;
 import com.novelassistant.entity.Tag;
+import com.novelassistant.entity.NovelCharacter;
+import com.novelassistant.entity.CharacterRelationship;
 import com.novelassistant.repository.ChapterRepository;
 import com.novelassistant.repository.NovelRepository;
 import com.novelassistant.repository.TagRepository;
+import com.novelassistant.repository.NovelCharacterRepository;
+import com.novelassistant.repository.CharacterRelationshipRepository;
 import com.novelassistant.service.VisualizationService;
 import com.novelassistant.util.LogUtil;
 
@@ -18,6 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +42,12 @@ public class VisualizationServiceImpl implements VisualizationService {
     
     @Autowired
     private TagRepository tagRepository;
+    
+    @Autowired
+    private NovelCharacterRepository characterRepository;
+    
+    @Autowired
+    private CharacterRelationshipRepository relationshipRepository;
 
     /**
      * 获取小说关键词云数据
@@ -267,8 +278,122 @@ public class VisualizationServiceImpl implements VisualizationService {
      */
     @Override
     public Map<String, Object> getCharacterRelationshipData(Long novelId) {
-        // 此功能暂未实现，返回空数据
-        return new HashMap<>();
+        Map<String, Object> networkData = new HashMap<>();
+        Optional<Novel> novelOpt = Optional.empty();
+        
+        try {
+            // 检查小说是否存在
+            novelOpt = novelRepository.findById(novelId);
+            if (!novelOpt.isPresent()) {
+                logger.warn("获取人物关系网络数据失败: 小说不存在, ID: {}", novelId);
+                return networkData;
+            }
+            
+            Novel novel = novelOpt.get();
+            // 检查小说处理状态，只有完成处理的小说才有可视化数据
+            if (!"COMPLETED".equals(novel.getProcessingStatus())) {
+                logger.warn("获取人物关系网络数据失败: 小说未完成处理, ID: {}", novelId);
+                return demoCharacterNetworkData(novel.getTitle());
+            }
+            
+            // 获取小说的所有角色
+            List<NovelCharacter> characters = characterRepository.findByNovelId(novelId);
+            if (characters.isEmpty()) {
+                logger.warn("小说没有角色数据, ID: {}", novelId);
+                return demoCharacterNetworkData(novel.getTitle());
+            }
+            
+            // 获取小说的所有角色关系
+            List<CharacterRelationship> relationships = relationshipRepository.findByNovelId(novelId);
+            
+            // 构建节点数据
+            List<Map<String, Object>> nodes = new ArrayList<>();
+            for (NovelCharacter character : characters) {
+                Map<String, Object> node = new HashMap<>();
+                node.put("id", character.getId().toString());
+                node.put("name", character.getName());
+                node.put("value", character.getImportance());
+                node.put("category", character.getCategory());
+                node.put("desc", character.getDescription());
+                nodes.add(node);
+            }
+            
+            // 构建关系数据
+            List<Map<String, Object>> links = new ArrayList<>();
+            for (CharacterRelationship relationship : relationships) {
+                Map<String, Object> link = new HashMap<>();
+                link.put("source", relationship.getSourceCharacterId().toString());
+                link.put("target", relationship.getTargetCharacterId().toString());
+                link.put("relation", relationship.getRelationshipType());
+                link.put("value", relationship.getImportance());
+                link.put("desc", relationship.getDescription());
+                links.add(link);
+            }
+            
+            // 设置返回数据
+            networkData.put("nodes", nodes);
+            networkData.put("links", links);
+            
+            return networkData;
+        } catch (Exception e) {
+            logger.error("获取人物关系网络数据异常: ", e);
+            return demoCharacterNetworkData(novelOpt.map(Novel::getTitle).orElse("未知小说"));
+        }
+    }
+
+    /**
+     * 生成演示用的人物关系网络数据
+     */
+    private Map<String, Object> demoCharacterNetworkData(String title) {
+        Map<String, Object> networkData = new HashMap<>();
+        List<Map<String, Object>> nodes = new ArrayList<>();
+        List<Map<String, Object>> links = new ArrayList<>();
+        
+        // 生成一些演示用的节点（角色）
+        String[] names = {"主角", "女主角", "反派", "挚友", "导师", "家人1", "家人2", "朋友1", "朋友2", "对手"};
+        String[] categories = {"主要角色", "主要角色", "主要角色", "主要角色", "主要角色", "次要角色", "次要角色", "次要角色", "次要角色", "主要角色"};
+        int[] importances = {80, 70, 65, 50, 55, 40, 35, 30, 30, 45};
+        
+        for (int i = 0; i < names.length; i++) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("id", String.valueOf(i + 1));
+            node.put("name", names[i]);
+            node.put("value", importances[i]);
+            node.put("category", categories[i]);
+            node.put("desc", title + "中的" + names[i]);
+            nodes.add(node);
+        }
+        
+        // 生成一些演示用的关系
+        String[][] relations = {
+            {"1", "2", "恋人", "5"},
+            {"1", "3", "宿敌", "5"},
+            {"1", "4", "好友", "4"},
+            {"1", "5", "师徒", "4"},
+            {"1", "6", "亲子", "3"},
+            {"1", "7", "亲子", "3"},
+            {"2", "3", "敌对", "2"},
+            {"2", "8", "朋友", "2"},
+            {"4", "8", "熟识", "1"},
+            {"4", "9", "熟识", "1"},
+            {"5", "3", "旧识", "2"},
+            {"5", "10", "师徒", "2"},
+            {"6", "7", "伴侣", "3"}
+        };
+        
+        for (String[] relation : relations) {
+            Map<String, Object> link = new HashMap<>();
+            link.put("source", relation[0]);
+            link.put("target", relation[1]);
+            link.put("relation", relation[2]);
+            link.put("value", Integer.parseInt(relation[3]));
+            links.add(link);
+        }
+        
+        networkData.put("nodes", nodes);
+        networkData.put("links", links);
+        
+        return networkData;
     }
 
     /**

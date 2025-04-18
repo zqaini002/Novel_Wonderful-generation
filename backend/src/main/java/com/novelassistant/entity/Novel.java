@@ -39,19 +39,19 @@ public class Novel {
     @Column(name = "total_chapters")
     private Integer totalChapters = 0;
     
-    @Column(name = "overall_summary")
+    @Column(name = "overall_summary", columnDefinition = "LONGTEXT")
     @Lob
     private String overallSummary;
     
-    @Column(name = "world_building_summary")
+    @Column(name = "world_building_summary", columnDefinition = "LONGTEXT")
     @Lob
     private String worldBuildingSummary;
     
-    @Column(name = "character_development_summary")
+    @Column(name = "character_development_summary", columnDefinition = "LONGTEXT")
     @Lob
     private String characterDevelopmentSummary;
     
-    @Column(name = "plot_progression_summary")
+    @Column(name = "plot_progression_summary", columnDefinition = "LONGTEXT")
     @Lob
     private String plotProgressionSummary;
     

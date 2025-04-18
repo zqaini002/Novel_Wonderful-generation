@@ -48,64 +48,78 @@
       </el-result>
     </div>
     
-    <div v-else class="novels-grid">
-      <el-card 
-        v-for="novel in novels" 
-        :key="novel.id" 
-        class="novel-card"
-        :body-style="{ padding: '0' }"
-        shadow="hover"
-      >
-        <div class="card-status-badge" :class="getStatusClass(novel.status)">
-          {{ getStatusText(novel.status) }}
-        </div>
-        
-        <div class="card-content">
-          <h3 class="novel-title">{{ novel.title }}</h3>
-          
-          <div class="novel-meta">
-            <el-icon><Calendar /></el-icon>
-            <span>{{ formatDate(novel.createTime) }}</span>
+    <div v-else>
+      <div class="novels-summary">共 {{ novels.length }} 本小说</div>
+      
+      <div class="novels-grid">
+        <el-card 
+          v-for="novel in displayedNovels" 
+          :key="novel.id" 
+          class="novel-card"
+          :body-style="{ padding: '0' }"
+          shadow="hover"
+        >
+          <div class="card-status-badge" :class="getStatusClass(novel.status)">
+            {{ getStatusText(novel.status) }}
           </div>
           
-          <p class="novel-description">{{ novel.description || '暂无简介' }}</p>
-          
-          <div class="novel-progress" v-if="novel.totalChapters">
-            <span class="progress-text">处理进度: {{ novel.processedChapters || 0 }}/{{ novel.totalChapters }}</span>
-            <el-progress 
-              :percentage="novel.totalChapters ? Math.round((novel.processedChapters || 0) / novel.totalChapters * 100) : 0"
-              :status="novel.processedChapters >= novel.totalChapters ? 'success' : ''"
-              :stroke-width="8"
-              :text-inside="true"
-            />
+          <div class="card-content">
+            <h3 class="novel-title">{{ novel.title }}</h3>
+            
+            <div class="novel-meta">
+              <el-icon><Calendar /></el-icon>
+              <span>{{ formatDate(novel.createTime) }}</span>
+            </div>
+            
+            <p class="novel-description">{{ novel.description || '暂无简介' }}</p>
+            
+            <div class="novel-progress" v-if="novel.totalChapters">
+              <span class="progress-text">处理进度: {{ novel.processedChapters || 0 }}/{{ novel.totalChapters }}</span>
+              <el-progress 
+                :percentage="novel.totalChapters ? Math.round((novel.processedChapters || 0) / novel.totalChapters * 100) : 0"
+                :status="novel.processedChapters >= novel.totalChapters ? 'success' : ''"
+                :stroke-width="8"
+                :text-inside="true"
+              />
+            </div>
           </div>
-        </div>
-        
-        <div class="card-actions">
-          <el-button 
-            type="primary" 
-            @click="$router.push(`/novel/${novel.id}`)"
-          >
-            <el-icon><View /></el-icon>
-            查看详情
-          </el-button>
-          <el-button 
-            v-if="novel.status === 'COMPLETED'" 
-            type="success" 
-            @click="goToAnalyze(novel.id)"
-          >
-            <el-icon><DataAnalysis /></el-icon>
-            查看分析
-          </el-button>
-          <el-button 
-            type="danger" 
-            @click="confirmDelete(novel)"
-          >
-            <el-icon><Delete /></el-icon>
-            删除
-          </el-button>
-        </div>
-      </el-card>
+          
+          <div class="card-actions">
+            <el-button 
+              type="primary" 
+              @click="$router.push(`/novel/${novel.id}`)"
+            >
+              <el-icon><View /></el-icon>
+              查看详情
+            </el-button>
+            <el-button 
+              v-if="novel.status === 'COMPLETED'" 
+              type="success" 
+              @click="goToAnalyze(novel.id)"
+            >
+              <el-icon><DataAnalysis /></el-icon>
+              查看分析
+            </el-button>
+            <el-button 
+              type="danger" 
+              @click="confirmDelete(novel)"
+            >
+              <el-icon><Delete /></el-icon>
+              删除
+            </el-button>
+          </div>
+        </el-card>
+      </div>
+      
+      <div class="pagination-container" v-if="novels.length > pageSize">
+        <el-pagination
+          layout="prev, pager, next, jumper"
+          :total="novels.length"
+          :page-size="pageSize"
+          v-model:current-page="currentPage"
+          @current-change="handlePageChange"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -132,8 +146,17 @@ export default {
       novels: [],
       loading: true,
       error: null,
-      selectedNovel: null
+      selectedNovel: null,
+      currentPage: 1,
+      pageSize: 6
     };
+  },
+  computed: {
+    displayedNovels() {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      return this.novels.slice(startIndex, endIndex);
+    }
   },
   created() {
     this.fetchUserNovels();
@@ -154,11 +177,45 @@ export default {
             novels = data;
           } else if (data.novels && Array.isArray(data.novels)) {
             novels = data.novels;
+          } else if (data.data && Array.isArray(data.data)) {
+            novels = data.data;
+          } else if (data.content && Array.isArray(data.content)) {
+            novels = data.content;
+          } else if (typeof data === 'object') {
+            // 打印对象的所有顶级键，帮助调试
+            console.log('API返回对象的所有键:', Object.keys(data));
+            
+            // 遍历所有键，查找可能包含小说数据的数组
+            for (const key in data) {
+              if (Array.isArray(data[key]) && data[key].length > 0 && 
+                  typeof data[key][0] === 'object' && data[key][0] !== null) {
+                console.log(`发现可能的小说数组在键 "${key}"，长度:`, data[key].length);
+                novels = [...novels, ...data[key]];
+              }
+            }
+            
+            // 如果上面的方法没有找到小说，尝试将对象转换为数组
+            if (novels.length === 0) {
+              novels = Object.values(data).filter(item => 
+                typeof item === 'object' && 
+                item !== null && 
+                !Array.isArray(item) && 
+                item.title
+              );
+            }
           }
         }
         
+        // 过滤掉任何null或undefined值
+        novels = novels.filter(novel => novel);
+        
+        // 如果小说对象不是期望的格式，打印详细日志
+        if (novels.length > 0) {
+          console.log('小说对象示例:', novels[0]);
+        }
+        
         this.novels = novels;
-        console.log('获取用户小说成功:', this.novels);
+        console.log('获取用户小说成功，共' + novels.length + '本:', this.novels);
       } catch (error) {
         console.error('获取小说列表失败:', error);
         
@@ -209,7 +266,7 @@ export default {
       return classMap[status] || 'status-default';
     },
     goToAnalyze(novelId) {
-      this.$router.push(`/analyze/${novelId}`);
+      this.$router.push(`/novel/${novelId}/visualization`);
     },
     confirmDelete(novel) {
       this.selectedNovel = novel;
@@ -236,6 +293,12 @@ export default {
       try {
         await novelService.deleteNovel(this.selectedNovel.id);
         this.novels = this.novels.filter(novel => novel.id !== this.selectedNovel.id);
+        
+        // 如果当前页没有小说了，且不是第一页，返回上一页
+        if (this.displayedNovels.length === 0 && this.currentPage > 1) {
+          this.currentPage--;
+        }
+        
         ElMessage({
           type: 'success',
           message: '小说删除成功'
@@ -249,6 +312,9 @@ export default {
       } finally {
         this.selectedNovel = null;
       }
+    },
+    handlePageChange(page) {
+      this.currentPage = page;
     }
   }
 };
@@ -295,10 +361,17 @@ export default {
   to { transform: rotate(360deg); }
 }
 
+.novels-summary {
+  margin-bottom: 20px;
+  color: #606266;
+  font-size: 14px;
+}
+
 .novels-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 25px;
+  width: 100%;
 }
 
 .novel-card {
@@ -306,6 +379,10 @@ export default {
   transition: transform 0.3s ease;
   border-radius: 10px;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .novel-card:hover {
@@ -341,6 +418,9 @@ export default {
 
 .card-content {
   padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .novel-title {
@@ -378,6 +458,7 @@ export default {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+  flex: 1;
 }
 
 .novel-progress {
@@ -395,10 +476,19 @@ export default {
   display: flex;
   gap: 10px;
   padding: 0 20px 20px;
+  margin-top: auto;
 }
 
 .card-actions .el-button {
   flex: 1;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #ebeef5;
 }
 
 @media screen and (max-width: 768px) {

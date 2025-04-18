@@ -40,8 +40,8 @@
           <el-table-column prop="author" label="作者" width="150" />
           <el-table-column label="状态" width="120">
             <template #default="scope">
-              <el-tag :type="getStatusType(scope.row.status)">
-                {{ formatStatus(scope.row.status) }}
+              <el-tag :type="getStatusType(scope.row.status || scope.row.processingStatus)">
+                {{ formatStatus(scope.row.status || scope.row.processingStatus) }}
               </el-tag>
             </template>
           </el-table-column>
@@ -57,7 +57,8 @@
           </el-table-column>
           <el-table-column label="上传时间" width="180">
             <template #default="scope">
-              {{ formatDate(scope.row.createdAt) }}
+              <div v-if="false">{{ console.log('小说对象:', scope.row) }}</div>
+              {{ formatDate(scope.row.createdAt || scope.row.created_at || scope.row.createTime || scope.row.uploadDate || scope.row.created) }}
             </template>
           </el-table-column>
           <el-table-column label="操作" width="220" fixed="right">
@@ -137,9 +138,10 @@ const fetchNovels = async () => {
       novels.value = response
       totalNovels.value = response.length
     } else {
+      console.warn('小说列表API返回格式异常:', response)
       novels.value = []
       totalNovels.value = 0
-      console.warn('小说列表API返回格式异常:', response)
+      ElMessage.warning('获取小说列表数据格式异常')
     }
   } catch (error) {
     console.error('获取小说列表失败:', error)
@@ -185,14 +187,62 @@ const displayNovels = computed(() => {
 
 // 格式化日期
 const formatDate = (dateString) => {
+  // 调试日期字段值
+  console.log('日期字段值:', dateString, typeof dateString)
+  
   if (!dateString) return '未知'
-  const date = new Date(dateString)
-  return date.toLocaleString()
+  try {
+    // 字符串类型的日期格式处理
+    if (typeof dateString === 'string') {
+      // MySQL日期格式 YYYY-MM-DD HH:MM:SS
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateString)) {
+        return new Date(dateString.replace(' ', 'T')).toLocaleString();
+      }
+      // ISO格式日期字符串
+      else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dateString)) {
+        return new Date(dateString).toLocaleString();
+      }
+      // MySQL日期格式没有时间部分 YYYY-MM-DD
+      else if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        return new Date(dateString).toLocaleString();
+      }
+      // Unix时间戳（毫秒）
+      else if (/^\d{13}$/.test(dateString)) {
+        return new Date(parseInt(dateString)).toLocaleString();
+      }
+      // Unix时间戳（秒）
+      else if (/^\d{10}$/.test(dateString)) {
+        return new Date(parseInt(dateString) * 1000).toLocaleString();
+      }
+    }
+    // 处理数字类型的时间戳
+    else if (typeof dateString === 'number') {
+      // 检查是毫秒还是秒级时间戳
+      const timestamp = dateString > 10000000000 ? dateString : dateString * 1000;
+      return new Date(timestamp).toLocaleString();
+    }
+    
+    const date = new Date(dateString)
+    // 调试日期解析结果
+    console.log('解析后的日期对象:', date, '是否有效:', !isNaN(date.getTime()))
+    
+    if (isNaN(date.getTime())) {
+      // 如果日期无效，返回当前时间的格式化字符串
+      console.warn('无效的日期格式:', dateString)
+      return new Date().toLocaleString()
+    }
+    return date.toLocaleString()
+  } catch (e) {
+    console.warn('日期格式化错误:', e, dateString)
+    return new Date().toLocaleString() // 返回当前时间作为后备
+  }
 }
 
 // 格式化状态
 const formatStatus = (status) => {
-  switch (status) {
+  if (!status) return '未知'
+  
+  switch (status.toUpperCase()) {
     case 'PROCESSING':
       return '处理中'
     case 'COMPLETED':
@@ -200,7 +250,10 @@ const formatStatus = (status) => {
     case 'FAILED':
       return '处理失败'
     case 'QUEUED':
+    case 'PENDING':
       return '等待处理'
+    case 'UNKNOWN':
+      return '未知'
     default:
       return status
   }
@@ -208,7 +261,9 @@ const formatStatus = (status) => {
 
 // 获取状态对应的类型
 const getStatusType = (status) => {
-  switch (status) {
+  if (!status) return 'info'
+  
+  switch (status.toUpperCase()) {
     case 'PROCESSING':
       return 'warning'
     case 'COMPLETED':
@@ -216,6 +271,9 @@ const getStatusType = (status) => {
     case 'FAILED':
       return 'danger'
     case 'QUEUED':
+    case 'PENDING':
+      return 'info'
+    case 'UNKNOWN':
       return 'info'
     default:
       return 'info'

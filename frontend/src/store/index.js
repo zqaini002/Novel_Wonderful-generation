@@ -8,7 +8,8 @@ export default createStore({
     currentNovel: null,
     processingStatus: null,
     loading: false,
-    error: null
+    error: null,
+    lastUploadedNovelId: null
   },
   mutations: {
     SET_NOVELS(state, novels) {
@@ -25,6 +26,9 @@ export default createStore({
     },
     SET_ERROR(state, error) {
       state.error = error
+    },
+    SET_LAST_UPLOADED_NOVEL_ID(state, id) {
+      state.lastUploadedNovelId = id
     }
   },
   actions: {
@@ -101,6 +105,7 @@ export default createStore({
         const response = await novelApi.uploadNovel(formData);
         
         const novelId = response.id || response.novelId;
+        commit('SET_LAST_UPLOADED_NOVEL_ID', novelId);
         commit('SET_PROCESSING_STATUS', 'PROCESSING')
         
         // 启动定时器轮询处理状态

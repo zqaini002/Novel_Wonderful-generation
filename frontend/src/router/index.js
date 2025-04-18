@@ -4,7 +4,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import NovelDetailView from '../views/NovelDetailView.vue'
 import UploadView from '../views/UploadView.vue'
-import AnalyzeView from '../views/AnalyzeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ProfileView from '../views/ProfileView.vue'
@@ -24,15 +23,6 @@ const routes = [
     component: UploadView,
     meta: {
       title: '上传小说 - 小说智析',
-      requiresAuth: true
-    }
-  },
-  {
-    path: '/analyze',
-    name: 'analyze',
-    component: AnalyzeView,
-    meta: {
-      title: '处理中 - 小说智析',
       requiresAuth: true
     }
   },
@@ -107,6 +97,16 @@ const routes = [
     component: () => import('../views/admin/DashboardView.vue'),
     meta: { 
       title: '管理员仪表盘 - 小说智析',
+      requiresAuth: true,
+      adminOnly: true
+    }
+  },
+  {
+    path: '/admin/novel/:id/visualization',
+    name: 'admin-novel-visualization',
+    component: () => import('../views/NovelVisualizationView.vue'),
+    meta: { 
+      title: '小说可视化分析 - 小说智析',
       requiresAuth: true,
       adminOnly: true
     }

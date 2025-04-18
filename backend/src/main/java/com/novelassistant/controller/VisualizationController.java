@@ -102,6 +102,31 @@ public class VisualizationController {
     }
     
     /**
+     * 获取小说人物关系网络数据
+     */
+    @GetMapping("/{novelId}/characters")
+    public ResponseEntity<?> getCharacterRelationshipData(@PathVariable Long novelId) {
+        if (novelId == null) {
+            logger.error("获取小说人物关系网络数据失败: 小说ID不能为空");
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "小说ID不能为空");
+            return ResponseEntity.badRequest().body(error);
+        }
+
+        logger.info("接收到获取小说人物关系网络数据请求, 小说ID: {}", novelId);
+        try {
+            Map<String, Object> result = visualizationService.getCharacterRelationshipData(novelId);
+            logger.info("获取小说人物关系网络数据成功, 小说ID: {}", novelId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("获取小说人物关系网络数据失败, 小说ID: {}, 错误信息: {}", novelId, e.getMessage(), e);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+    
+    /**
      * 获取小说所有可视化数据（整合所有数据）
      */
     @GetMapping("/{novelId}/all")
@@ -131,6 +156,9 @@ public class VisualizationController {
             
             // 获取结构分析数据
             result.put("structure", visualizationService.getStructureAnalysisData(novelId));
+            
+            // 获取人物关系网络数据
+            result.put("characters", visualizationService.getCharacterRelationshipData(novelId));
             
             logger.info("获取小说所有可视化数据成功, 小说ID: {}", novelId);
             return ResponseEntity.ok(result);
