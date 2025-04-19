@@ -5,15 +5,20 @@ import com.novelassistant.entity.Novel;
 import com.novelassistant.entity.Tag;
 import com.novelassistant.entity.NovelCharacter;
 import com.novelassistant.entity.CharacterRelationship;
+import com.novelassistant.entity.CharacterDialogue;
+import com.novelassistant.entity.visualization.EmotionalData;
 import com.novelassistant.repository.ChapterRepository;
 import com.novelassistant.repository.NovelRepository;
 import com.novelassistant.repository.TagRepository;
 import com.novelassistant.repository.NovelCharacterRepository;
 import com.novelassistant.repository.CharacterRelationshipRepository;
+import com.novelassistant.repository.CharacterDialogueRepository;
+import com.novelassistant.repository.visualization.EmotionalDataRepository;
 import com.novelassistant.service.VisualizationService;
 import com.novelassistant.util.LogUtil;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +37,7 @@ import java.util.stream.Collectors;
 @Service
 public class VisualizationServiceImpl implements VisualizationService {
 
-    private static final Logger logger = LogUtil.getLogger(VisualizationServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(VisualizationServiceImpl.class);
     
     @Autowired
     private NovelRepository novelRepository;
@@ -48,6 +53,12 @@ public class VisualizationServiceImpl implements VisualizationService {
     
     @Autowired
     private CharacterRelationshipRepository relationshipRepository;
+    
+    @Autowired
+    private CharacterDialogueRepository characterDialogueRepository;
+    
+    @Autowired
+    private EmotionalDataRepository emotionalDataRepository;
 
     /**
      * 获取小说关键词云数据
@@ -109,60 +120,91 @@ public class VisualizationServiceImpl implements VisualizationService {
         Novel novel = novelRepository.findById(novelId)
                 .orElseThrow(() -> new RuntimeException("小说不存在，ID: " + novelId));
 
-        // 获取小说的所有章节（按章节号排序）
-        List<Chapter> chapters = chapterRepository.findByNovelIdOrderByChapterNumberAsc(novelId);
-        
         // 准备数据
         List<Map<String, Object>> emotionalData = new ArrayList<>();
         
-        // 处理每个章节的情节数据
-        for (int i = 0; i < chapters.size(); i++) {
-            Chapter chapter = chapters.get(i);
-            Map<String, Object> chapterData = new HashMap<>();
-            
-            // 基础数据
-            chapterData.put("chapter", "第" + chapter.getChapterNumber() + "章");
-            chapterData.put("chapterTitle", chapter.getTitle());
-            
-            // 通过章节摘要分析计算情感值
-            // 实际项目中应该通过NLP分析计算，这里模拟数据
-            
-            // 模拟情感值：随机波动，但总体呈现起伏状态
-            double tensionBase = Math.sin(i * 0.3) * 30 + 50;  // 基础值在20-80之间波动
-            double randomVariation = Math.random() * 20 - 10;  // 添加-10到10的随机变化
-            double emotionValue = Math.max(0, Math.min(100, tensionBase + randomVariation));
-            
-            // 每5章左右设置一个关键事件
-            boolean isKeyEvent = (i % 5 == 0 || i % 7 == 0);
-            
-            chapterData.put("emotion", emotionValue);
-            
-            // 添加章节摘要作为事件描述
-            String eventDesc = (chapter.getSummary() != null && !chapter.getSummary().isEmpty())
-                    ? chapter.getSummary()
-                    : "章节关键事件描述";
-            
-            // 截断过长的摘要
-            if (eventDesc.length() > 100) {
-                eventDesc = eventDesc.substring(0, 97) + "...";
+        // 从数据库获取情感数据，按章节号排序
+        List<com.novelassistant.entity.visualization.EmotionalData> dataList = 
+                emotionalDataRepository.findByNovelIdOrderByChapterNumberAsc(novelId);
+        
+        // 如果存在实际分析的情感数据，使用它
+        if (!dataList.isEmpty()) {
+            for (com.novelassistant.entity.visualization.EmotionalData data : dataList) {
+                Map<String, Object> chapterData = new HashMap<>();
+                
+                // 基本信息
+                chapterData.put("chapter", "第" + data.getChapterNumber() + "章");
+                chapterData.put("chapterTitle", data.getChapterTitle());
+                chapterData.put("emotion", data.getEmotionValue());
+                chapterData.put("event", data.getEventDescription());
+                
+                // 重要事件标记
+                if (data.getIsImportant() != null && data.getIsImportant()) {
+                    chapterData.put("isImportant", true);
+                }
+                
+                // 情节高潮段落标记
+                if (data.getIsClimaxStart() != null && data.getIsClimaxStart()) {
+                    chapterData.put("isClimaxStart", true);
+                }
+                
+                if (data.getIsClimaxEnd() != null && data.getIsClimaxEnd()) {
+                    chapterData.put("isClimaxEnd", true);
+                }
+                
+                emotionalData.add(chapterData);
             }
+        } else {
+            // 如果没有实际数据，获取小说的所有章节并生成模拟数据
+            List<Chapter> chapters = chapterRepository.findByNovelIdOrderByChapterNumberAsc(novelId);
+            logger.warn("小说 ID: {} 没有情感分析数据，使用模拟数据", novelId);
             
-            chapterData.put("event", eventDesc);
-            
-            // 标记关键章节（高潮）
-            if (isKeyEvent) {
-                chapterData.put("isImportant", true);
+            // 处理每个章节的情节数据
+            for (int i = 0; i < chapters.size(); i++) {
+                Chapter chapter = chapters.get(i);
+                Map<String, Object> chapterData = new HashMap<>();
+                
+                // 基础数据
+                chapterData.put("chapter", "第" + chapter.getChapterNumber() + "章");
+                chapterData.put("chapterTitle", chapter.getTitle());
+                
+                // 模拟情感值：随机波动，但总体呈现起伏状态
+                double tensionBase = Math.sin(i * 0.3) * 30 + 50;  // 基础值在20-80之间波动
+                double randomVariation = Math.random() * 20 - 10;  // 添加-10到10的随机变化
+                double emotionValue = Math.max(0, Math.min(100, tensionBase + randomVariation));
+                
+                // 每5章左右设置一个关键事件
+                boolean isKeyEvent = (i % 5 == 0 || i % 7 == 0);
+                
+                chapterData.put("emotion", emotionValue);
+                
+                // 添加章节摘要作为事件描述
+                String eventDesc = (chapter.getSummary() != null && !chapter.getSummary().isEmpty())
+                        ? chapter.getSummary()
+                        : "章节关键事件描述";
+                
+                // 截断过长的摘要
+                if (eventDesc.length() > 100) {
+                    eventDesc = eventDesc.substring(0, 97) + "...";
+                }
+                
+                chapterData.put("event", eventDesc);
+                
+                // 标记关键章节（高潮）
+                if (isKeyEvent) {
+                    chapterData.put("isImportant", true);
+                }
+                
+                // 标记情节高潮段落的开始和结束
+                if (i > 0 && i < chapters.size() - 10 && i % 15 == 0) {
+                    chapterData.put("isClimaxStart", true);
+                }
+                if (i > 5 && i < chapters.size() - 5 && i % 15 == 5) {
+                    chapterData.put("isClimaxEnd", true);
+                }
+                
+                emotionalData.add(chapterData);
             }
-            
-            // 标记情节高潮段落的开始和结束
-            if (i > 0 && i < chapters.size() - 10 && i % 15 == 0) {
-                chapterData.put("isClimaxStart", true);
-            }
-            if (i > 5 && i < chapters.size() - 5 && i % 15 == 5) {
-                chapterData.put("isClimaxEnd", true);
-            }
-            
-            emotionalData.add(chapterData);
         }
         
         Map<String, Object> result = new HashMap<>();

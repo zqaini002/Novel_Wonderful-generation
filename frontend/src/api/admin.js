@@ -7,6 +7,11 @@ const adminService = {
     return apiClient.get('/admin/dashboard');
   },
 
+  // 获取详细系统统计信息
+  async getDetailedSystemStats() {
+    return apiClient.get('/admin/dashboard/detailed');
+  },
+
   // 获取所有用户列表
   async getAllUsers() {
     return apiClient.get('/admin/users');

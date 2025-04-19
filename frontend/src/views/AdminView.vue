@@ -8,7 +8,7 @@
           <i class="bi bi-people-fill"></i>
         </div>
         <div class="stat-content">
-          <h3>{{ stats.userCount || 0 }}</h3>
+          <h3>{{ stats.users || 0 }}</h3>
           <p>用户数量</p>
         </div>
       </div>
@@ -18,7 +18,7 @@
           <i class="bi bi-book-fill"></i>
         </div>
         <div class="stat-content">
-          <h3>{{ stats.novelCount || 0 }}</h3>
+          <h3>{{ stats.novels || 0 }}</h3>
           <p>小说数量</p>
         </div>
       </div>
@@ -28,8 +28,18 @@
           <i class="bi bi-lightning-fill"></i>
         </div>
         <div class="stat-content">
-          <h3>{{ stats.activeUsers || 0 }}</h3>
-          <p>活跃用户</p>
+          <h3>{{ stats.uploads || 0 }}</h3>
+          <p>上传数量</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="bi bi-eye-fill"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.views || 0 }}</h3>
+          <p>浏览数量</p>
         </div>
       </div>
     </div>
@@ -83,31 +93,68 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from 'vue'
+import adminService from '@/api/admin'
+
+export default defineComponent({
   name: 'AdminView',
   data() {
     return {
       loading: false,
       stats: {
-        userCount: 25,
-        novelCount: 43,
-        activeUsers: 12
+        users: 0,
+        novels: 0,
+        uploads: 0,
+        views: 0
       },
       activities: [
-        { type: 'login', content: '用户 admin 登录了系统', time: new Date() },
-        { type: 'upload', content: '用户 test1 上传了新小说《修真聊天群》', time: new Date(Date.now() - 1000 * 60 * 30) },
-        { type: 'register', content: '新用户 newuser123 注册了账号', time: new Date(Date.now() - 1000 * 60 * 60 * 2) },
+        { type: 'login', content: '管理员登录系统', time: new Date(Date.now() - 1000 * 60 * 5) },
+        { type: 'upload', content: '用户上传小说《三体》', time: new Date(Date.now() - 1000 * 60 * 30) },
+        { type: 'register', content: '新用户注册: zhang_san', time: new Date(Date.now() - 1000 * 60 * 60 * 2) },
         { type: 'error', content: '系统发生错误：数据库连接中断', time: new Date(Date.now() - 1000 * 60 * 60 * 12) }
       ]
     }
   },
   methods: {
     fetchAdminData() {
-      // TODO: Implement API call to fetch admin data
       this.loading = true;
-      setTimeout(() => {
-        this.loading = false;
-      }, 1000);
+      adminService.getDashboardStats()
+        .then(response => {
+          if (response) {
+            this.stats.users = response.totalUsers || 0;
+            this.stats.novels = response.totalNovels || 0;
+            this.stats.uploads = response.processingNovels || 0;
+            this.stats.views = response.totalViews || 0;
+          }
+          
+          // 获取最近的活动日志
+          return adminService.getRecentLogs(5);
+        })
+        .then(logsResponse => {
+          if (logsResponse && Array.isArray(logsResponse)) {
+            this.activities = logsResponse.map(log => ({
+              type: this.getActivityType(log.action),
+              content: log.message || log.description || '系统活动',
+              time: new Date(log.timestamp || log.createdAt)
+            }));
+          }
+        })
+        .catch(error => {
+          console.error('获取管理员数据失败:', error);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    getActivityType(action) {
+      if (!action) return 'default';
+      
+      if (action.includes('login')) return 'login';
+      if (action.includes('upload')) return 'upload';
+      if (action.includes('register')) return 'register';
+      if (action.includes('error')) return 'error';
+      
+      return 'default';
     },
     formatDate(date) {
       return new Date(date).toLocaleString('zh-CN', {
@@ -131,7 +178,7 @@ export default {
   mounted() {
     this.fetchAdminData();
   }
-}
+})
 </script>
 
 <style scoped>

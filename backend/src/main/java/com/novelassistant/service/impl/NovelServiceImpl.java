@@ -1,11 +1,11 @@
 package com.novelassistant.service.impl;
 
-import com.novelassistant.entity.Novel;
-import com.novelassistant.entity.Chapter;
-import com.novelassistant.entity.Tag;
+import com.novelassistant.entity.*;
 import com.novelassistant.repository.NovelRepository;
 import com.novelassistant.repository.ChapterRepository;
 import com.novelassistant.repository.TagRepository;
+import com.novelassistant.repository.NovelCharacterRepository;
+import com.novelassistant.repository.CharacterRelationshipRepository;
 import com.novelassistant.service.NlpService;
 import com.novelassistant.service.NovelService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.FileInputStream;
+import java.util.stream.Collectors;
 
 @Service
 public class NovelServiceImpl implements NovelService {
@@ -39,6 +40,15 @@ public class NovelServiceImpl implements NovelService {
     
     @Autowired
     private NlpService nlpService;
+    
+    @Autowired
+    private NovelCharacterRepository characterRepository;
+    
+    @Autowired
+    private CharacterRelationshipRepository relationshipRepository;
+    
+    @Autowired
+    private com.novelassistant.repository.visualization.EmotionalDataRepository emotionalDataRepository;
     
     @Override
     public List<Novel> getAllNovels() {
@@ -206,31 +216,36 @@ public class NovelServiceImpl implements NovelService {
         // 识别人物
         List<String> characters = nlpService.extractCharacters(fullContent);
         
-        // 生成世界观和角色发展摘要
-        String worldBuildingSummary = generateWorldBuildingSummary(fullContent);
-        novel.setWorldBuildingSummary(worldBuildingSummary);
+        // 获取对话并分析人物关系
+        List<Map<String, String>> dialogues = nlpService.extractDialogues(fullContent);
+        List<Map<String, Object>> relationships = nlpService.analyzeCharacterRelationships(dialogues);
         
+        // 保存角色和关系
+        saveCharacterRelationships(novel, characters, relationships);
+        
+        // 生成角色发展摘要
         String characterSummary = generateCharacterSummary(fullContent, characters);
         novel.setCharacterDevelopmentSummary(characterSummary);
         
-        // 提取主题作为标签
-        Map<String, Double> topics = nlpService.extractTopics(fullContent, 5);
-        for (Map.Entry<String, Double> topic : topics.entrySet()) {
-            if (topic.getValue() > 0.3) { // 只添加权重较高的主题
-                addTag(novel, topic.getKey(), Tag.TagType.INFO);
-            }
-        }
+        // 生成世界观摘要
+        novel.setWorldBuildingSummary("【世界观分析】\n小说中的世界背景描述。");
         
-        // 基于关键词添加标签
-        for (Map.Entry<String, Integer> entry : keywords.entrySet()) {
-            if (entry.getValue() > 70) { // 只添加权重较高的关键词
-                addTag(novel, entry.getKey(), Tag.TagType.POSITIVE);
-            }
-        }
+        // 生成剧情进展摘要
+        novel.setPlotProgressionSummary("【剧情分析】\n小说中的主要情节发展和转折点。");
         
-        // 更新状态为已完成
+        // 为小说添加标签
+        // 按关键词权重排序，取前5个作为标签
+        keywords.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(5)
+                .forEach(entry -> addTag(novel, entry.getKey(), Tag.TagType.INFO));
+        
+        // 更新状态为完成
         novel.setProcessingStatus(Novel.ProcessingStatus.COMPLETED);
         novelRepository.save(novel);
+        
+        // 处理情感数据，标识情节高潮点
+        identifyEmotionalPatterns(novel);
     }
     
     /**
@@ -345,58 +360,29 @@ public class NovelServiceImpl implements NovelService {
     }
     
     /**
-     * 使用NLP服务生成世界观摘要
-     */
-    private String generateWorldBuildingSummary(String fullContent) {
-        // 提取与世界观相关的句子
-        List<String> sentences = Arrays.asList(fullContent.split("[。！？.!?]"));
-        List<String> worldBuildingSentences = new ArrayList<>();
-        
-        // 世界观相关的关键词
-        String[] worldKeywords = {"世界", "宇宙", "国家", "王国", "帝国", "城市", "山脉", "大陆", "星球", 
-                                  "时代", "年代", "历史", "文明", "种族", "魔法", "科技", "规则", "法则"};
-        
-        for (String sentence : sentences) {
-            for (String keyword : worldKeywords) {
-                if (sentence.contains(keyword)) {
-                    worldBuildingSentences.add(sentence);
-                    break;
-                }
-            }
-            
-            if (worldBuildingSentences.size() >= 30) {
-                break;
-            }
-        }
-        
-        if (worldBuildingSentences.isEmpty()) {
-            return "该小说未包含明确的世界观设定描述。";
-        }
-        
-        // 连接句子后使用NLP生成摘要
-        String worldContent = String.join("。", worldBuildingSentences) + "。";
-        return nlpService.generateSummary(worldContent, 300);
-    }
-    
-    /**
-     * 使用NLP服务生成角色发展摘要
+     * 生成角色发展摘要
      */
     private String generateCharacterSummary(String fullContent, List<String> characters) {
         if (characters.isEmpty()) {
-            return "未能识别出明确的角色。";
+            return "小说中未能识别明确的角色。";
         }
         
-        StringBuilder characterSummary = new StringBuilder();
-        characterSummary.append("主要角色包括：");
+        // 获取所有对话
+        List<Map<String, String>> dialogues = nlpService.extractDialogues(fullContent);
         
-        // 只取前5个角色
-        List<String> mainCharacters = characters.size() > 5 ? 
-                characters.subList(0, 5) : characters;
+        // 提取角色关系 - 仅用于摘要生成，不再保存到数据库（已在processNovelFile中处理）
+        List<Map<String, Object>> relationships = nlpService.analyzeCharacterRelationships(dialogues);
         
-        characterSummary.append(String.join("、", mainCharacters)).append("。");
+        StringBuilder summary = new StringBuilder();
+        summary.append("主要角色：").append(String.join("、", characters.subList(0, Math.min(5, characters.size()))));
+        summary.append("\n\n");
         
-        // 提取每个主要角色相关的句子
-        for (String character : mainCharacters) {
+        // 为每个主要角色生成描述
+        int limit = Math.min(10, characters.size());
+        for (int i = 0; i < limit; i++) {
+            String character = characters.get(i);
+            
+            // 提取与该角色相关的内容
             List<String> sentences = Arrays.asList(fullContent.split("[。！？.!?]"));
             List<String> characterSentences = new ArrayList<>();
             
@@ -405,19 +391,114 @@ public class NovelServiceImpl implements NovelService {
                     characterSentences.add(sentence);
                 }
                 
-                if (characterSentences.size() >= 10) {
+                if (characterSentences.size() >= 15) {
                     break;
                 }
             }
             
+            // 提取该角色的对话
+            List<String> characterDialogues = dialogues.stream()
+                .filter(d -> d.get("speaker").equals(character))
+                .map(d -> d.get("content"))
+                .limit(5)
+                .collect(Collectors.toList());
+            
+            // 计算角色的互动关系
+            List<String> characterRelations = relationships.stream()
+                .filter(r -> r.get("character1").equals(character) || r.get("character2").equals(character))
+                .map(r -> {
+                    String other = r.get("character1").equals(character) ? 
+                                  (String)r.get("character2") : (String)r.get("character1");
+                    return other + "(" + r.get("relationship") + ")";
+                })
+                .limit(3)
+                .collect(Collectors.toList());
+            
             if (!characterSentences.isEmpty()) {
+                // 为该角色生成摘要
                 String characterContent = String.join("。", characterSentences) + "。";
                 String charSummary = nlpService.generateSummary(characterContent, 100);
-                characterSummary.append(character).append("：").append(charSummary).append("\n");
+                
+                summary.append(character).append("：").append(charSummary);
+                
+                // 添加角色对话示例
+                if (!characterDialogues.isEmpty()) {
+                    summary.append("\n典型对话：\"").append(characterDialogues.get(0)).append("\"");
+                }
+                
+                // 添加角色关系
+                if (!characterRelations.isEmpty()) {
+                    summary.append("\n相关角色：").append(String.join("、", characterRelations));
+                }
+                
+                summary.append("\n\n");
             }
         }
         
-        return characterSummary.toString();
+        return summary.toString();
+    }
+    
+    /**
+     * 保存角色关系到数据库
+     * @param novel 小说对象
+     * @param characters 识别出的角色列表
+     * @param relationships 分析出的关系列表
+     */
+    private void saveCharacterRelationships(Novel novel, List<String> characters, List<Map<String, Object>> relationships) {
+        // Only save if novel is not null
+        if (novel == null) {
+            return;
+        }
+        
+        // 只处理前20个角色
+        int limit = Math.min(20, characters.size());
+        List<String> mainCharacters = characters.subList(0, limit);
+        
+        // 创建角色实体
+        Map<String, NovelCharacter> characterEntities = new HashMap<>();
+        for (String characterName : mainCharacters) {
+            NovelCharacter characterEntity = new NovelCharacter();
+            characterEntity.setName(characterName);
+            characterEntity.setNovel(novel);
+            characterEntity.setNovelId(novel.getId()); // 显式设置novelId字段
+            characterEntity.setImportance(100 - characters.indexOf(characterName) * 5); // 根据角色排名设置重要性
+            characterEntity.setDescription(generateCharacterDescription(characterName));
+            
+            // 保存到数据库
+            characterRepository.save(characterEntity);
+            characterEntities.put(characterName, characterEntity);
+        }
+        
+        // 保存角色关系
+        for (Map<String, Object> relationship : relationships) {
+            String char1 = (String) relationship.get("character1");
+            String char2 = (String) relationship.get("character2");
+            String relationshipType = (String) relationship.get("relationship");
+            Double confidence = (Double) relationship.get("confidence");
+            
+            // 如果两个角色都在主要角色列表中
+            if (characterEntities.containsKey(char1) && characterEntities.containsKey(char2)) {
+                CharacterRelationship relationEntity = new CharacterRelationship();
+                relationEntity.setNovelId(novel.getId());
+                relationEntity.setSourceCharacterId(characterEntities.get(char1).getId());
+                relationEntity.setTargetCharacterId(characterEntities.get(char2).getId());
+                relationEntity.setRelationshipType(relationshipType);
+                relationEntity.setImportance(confidence != null ? confidence.intValue() : 1);
+                relationEntity.setDescription(relationshipType);
+                
+                // 保存到数据库
+                relationshipRepository.save(relationEntity);
+            }
+        }
+    }
+    
+    /**
+     * 为角色生成简短描述
+     */
+    private String generateCharacterDescription(String characterName) {
+        // 这里可以根据角色在小说中的表现生成描述
+        // 简单实现，返回默认描述
+        return "小说中的角色：" + characterName;
     }
     
     /**
@@ -436,11 +517,153 @@ public class NovelServiceImpl implements NovelService {
         List<String> keywords = new ArrayList<>(keywordMap.keySet());
         chapter.setKeywords(keywords);
         
+        // 保存章节
         chapterRepository.save(chapter);
+        
+        // 使用NLP分析章节情感
+        double emotionValue = nlpService.analyzeSentiment(content);
+        
+        // 创建情感数据对象
+        com.novelassistant.entity.visualization.EmotionalData emotionalData = new com.novelassistant.entity.visualization.EmotionalData();
+        emotionalData.setNovel(novel);
+        emotionalData.setChapter(chapter);
+        emotionalData.setChapterNumber(chapterNumber);
+        emotionalData.setChapterTitle(title);
+        
+        // 将0-1范围的情感值转换为0-100范围以便展示
+        emotionalData.setEmotionValue(emotionValue * 100);
+        
+        // 将章节摘要设置为事件描述
+        emotionalData.setEventDescription(summaryText);
+        
+        // 根据内容特征判断是否为重要章节或情节高潮
+        boolean isImportant = isImportantChapter(content, emotionValue);
+        emotionalData.setIsImportant(isImportant);
+        
+        // 保存情感数据
+        emotionalDataRepository.save(emotionalData);
+    }
+    
+    /**
+     * 判断章节是否为重要章节
+     * 基于内容特征和情感值
+     */
+    private boolean isImportantChapter(String content, double emotionValue) {
+        // 高情感值或低情感值通常对应重要情节点
+        if (emotionValue > 0.8 || emotionValue < 0.2) {
+            return true;
+        }
+        
+        // 检查是否包含重要情节关键词
+        String[] importantKeywords = {"战斗", "死亡", "相遇", "发现", "离别", "相爱", "失去", 
+                                     "冲突", "危机", "转折", "告白", "决定", "选择", "背叛"};
+        
+        for (String keyword : importantKeywords) {
+            if (content.contains(keyword)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     private void addTag(Novel novel, String name, Tag.TagType type) {
         Tag tag = new Tag(novel, name, type);
         tagRepository.save(tag);
+    }
+    
+    /**
+     * 分析小说情感数据，识别情节高潮点
+     * @param novel 小说对象
+     */
+    private void identifyEmotionalPatterns(Novel novel) {
+        // 获取按章节号排序的所有情感数据
+        List<com.novelassistant.entity.visualization.EmotionalData> emotionalDataList = 
+                emotionalDataRepository.findByNovelIdOrderByChapterNumberAsc(novel.getId());
+        
+        if (emotionalDataList.size() < 5) {
+            return; // 章节太少，无法进行有效分析
+        }
+        
+        // 分析情感曲线变化趋势，找出波峰和波谷
+        List<com.novelassistant.entity.visualization.EmotionalData> peaks = new ArrayList<>();
+        List<com.novelassistant.entity.visualization.EmotionalData> valleys = new ArrayList<>();
+        
+        // 简单的波峰波谷检测逻辑
+        for (int i = 1; i < emotionalDataList.size() - 1; i++) {
+            com.novelassistant.entity.visualization.EmotionalData prev = emotionalDataList.get(i - 1);
+            com.novelassistant.entity.visualization.EmotionalData current = emotionalDataList.get(i);
+            com.novelassistant.entity.visualization.EmotionalData next = emotionalDataList.get(i + 1);
+            
+            double prevVal = prev.getEmotionValue();
+            double currentVal = current.getEmotionValue();
+            double nextVal = next.getEmotionValue();
+            
+            // 如果当前值大于前后两个，则为波峰
+            if (currentVal > prevVal && currentVal > nextVal) {
+                peaks.add(current);
+            }
+            
+            // 如果当前值小于前后两个，则为波谷
+            if (currentVal < prevVal && currentVal < nextVal) {
+                valleys.add(current);
+            }
+        }
+        
+        // 识别主要情节高潮区域（通常在小说的2/3处）
+        int startIndex = (int)(emotionalDataList.size() * 0.55);
+        int endIndex = (int)(emotionalDataList.size() * 0.85);
+        
+        // 在主要区域内找最高的波峰作为高潮点
+        com.novelassistant.entity.visualization.EmotionalData mainClimaxPeak = null;
+        double maxPeakValue = 0;
+        
+        for (com.novelassistant.entity.visualization.EmotionalData peak : peaks) {
+            int chapterNum = peak.getChapterNumber();
+            int chapterIndex = chapterNum - 1; // 假设章节号从1开始
+            
+            if (chapterIndex >= startIndex && chapterIndex <= endIndex && peak.getEmotionValue() > maxPeakValue) {
+                maxPeakValue = peak.getEmotionValue();
+                mainClimaxPeak = peak;
+            }
+        }
+        
+        // 如果找到了主要高潮点，则标记高潮开始和结束点
+        if (mainClimaxPeak != null) {
+            // 找主要高潮前的波谷作为高潮开始点
+            com.novelassistant.entity.visualization.EmotionalData climaxStart = null;
+            for (com.novelassistant.entity.visualization.EmotionalData valley : valleys) {
+                if (valley.getChapterNumber() < mainClimaxPeak.getChapterNumber() && 
+                    valley.getChapterNumber() > mainClimaxPeak.getChapterNumber() - 10) {
+                    climaxStart = valley;
+                    break;
+                }
+            }
+            
+            // 找主要高潮后的波谷作为高潮结束点
+            com.novelassistant.entity.visualization.EmotionalData climaxEnd = null;
+            for (com.novelassistant.entity.visualization.EmotionalData valley : valleys) {
+                if (valley.getChapterNumber() > mainClimaxPeak.getChapterNumber() && 
+                    valley.getChapterNumber() < mainClimaxPeak.getChapterNumber() + 10) {
+                    climaxEnd = valley;
+                    break;
+                }
+            }
+            
+            // 标记高潮开始和结束
+            if (climaxStart != null) {
+                climaxStart.setIsClimaxStart(true);
+                emotionalDataRepository.save(climaxStart);
+            }
+            
+            // 主要高潮点标记为重要章节
+            mainClimaxPeak.setIsImportant(true);
+            emotionalDataRepository.save(mainClimaxPeak);
+            
+            if (climaxEnd != null) {
+                climaxEnd.setIsClimaxEnd(true);
+                emotionalDataRepository.save(climaxEnd);
+            }
+        }
     }
 } 

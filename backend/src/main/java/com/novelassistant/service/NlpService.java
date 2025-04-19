@@ -66,4 +66,12 @@ public interface NlpService {
      * @return 对话列表，每项包含说话者和内容
      */
     List<Map<String, String>> extractDialogues(String text);
+    
+    /**
+     * 分析角色之间的关系
+     * 
+     * @param dialogues 从文本中提取的对话列表
+     * @return 关系列表，每项包含character1, character2, relationship, confidence等字段
+     */
+    List<Map<String, Object>> analyzeCharacterRelationships(List<Map<String, String>> dialogues);
 } 

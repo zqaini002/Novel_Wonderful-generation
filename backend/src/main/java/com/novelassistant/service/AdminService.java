@@ -16,6 +16,12 @@ public interface AdminService {
     Map<String, Object> getDashboardStats();
     
     /**
+     * 获取详细的系统统计信息
+     * @return 详细统计信息，包括系统状态、存储信息等
+     */
+    Map<String, Object> getDetailedSystemStats();
+    
+    /**
      * 获取所有用户列表
      * @return 用户列表
      */

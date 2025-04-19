@@ -177,7 +177,7 @@ export default {
       // 添加点击事件 - 点击详细结构显示更多信息
       chart.on('click', params => {
         if (params.seriesIndex === 1) { // 点击详细部分
-          showSectionDetails(params.data)
+          showSectionDetail(params.data)
         }
       })
     }
@@ -303,12 +303,10 @@ export default {
     }
     
     // 显示结构部分详情
-    const showSectionDetails = (sectionData) => {
-      if (!sectionData) return
-      
-      // 可以在这里实现点击后的详情显示逻辑
-      // 例如显示一个包含章节列表的弹窗
-      console.log('显示结构部分详情:', sectionData)
+    const showSectionDetail = (sectionData) => {
+      if (sectionData) {
+        // 移除console.log语句
+      }
     }
 
     // 处理窗口大小改变

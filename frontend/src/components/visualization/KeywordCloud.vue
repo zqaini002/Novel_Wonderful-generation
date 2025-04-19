@@ -15,13 +15,9 @@
 <script>
 import { ref, onMounted, onBeforeUnmount, watch, computed, nextTick } from 'vue'
 import * as echarts from 'echarts'
-// 显式导入并确保注册wordcloud组件
+// 导入并确保注册wordcloud组件
 import 'echarts-wordcloud'
 import { WarningFilled } from '@element-plus/icons-vue'
-
-// 确认wordCloud系列类型已注册的调试日志
-console.log('KeywordCloud - echarts registered series types:', echarts.getMap('series'));
-console.log('KeywordCloud - echarts version:', echarts.version);
 
 export default {
   name: 'KeywordCloud',
@@ -58,33 +54,27 @@ export default {
     // 计算是否有数据
     const hasData = computed(() => {
       const hasKeywords = props.keywords && props.keywords.length > 0;
-      console.log('KeywordCloud - hasData计算:', hasKeywords, props.keywords);
       return hasKeywords;
     });
 
     // 初始化图表
     const initChart = () => {
-      console.log('KeywordCloud - 开始初始化图表');
       // 确保DOM已挂载
       if (!chartRef.value) {
-        console.warn('KeywordCloud - chartRef.value不存在，跳过初始化');
         return;
       }
 
       // 销毁旧图表
       if (chart) {
-        console.log('KeywordCloud - 销毁旧图表实例');
         chart.dispose();
         chart = null;
       }
 
       // 使用 nextTick 确保DOM已完全渲染并且有正确的尺寸
       nextTick(() => {
-        console.log('KeywordCloud - nextTick 回调开始执行');
         // 检查DOM是否可见且有尺寸
         if (!chartRef.value || chartRef.value.clientWidth === 0 || chartRef.value.clientHeight === 0) {
           // 如果DOM尺寸为0，延迟初始化
-          console.warn('KeywordCloud - DOM尺寸为0，延迟初始化');
           setTimeout(() => {
             initChart();
           }, 500);
@@ -93,21 +83,15 @@ export default {
 
         try {
           // 初始化图表实例
-          console.log('KeywordCloud - 创建echarts实例');
           chart = echarts.init(chartRef.value);
           
           // 验证chart实例
           if (!chart) {
-            console.error('KeywordCloud - 创建图表实例失败');
             return;
           }
 
-          // 检查数据状态
-          console.log('KeywordCloud - 数据检查: hasData=', hasData.value, 'keywords=', props.keywords);
-          
           // 如果没有数据，渲染空图表
           if (!hasData.value) {
-            console.log('KeywordCloud - 无数据，显示空图表');
             chart.setOption({
               title: {
                 text: props.title || '关键词云',
@@ -129,10 +113,8 @@ export default {
           
           // 格式化并检查处理后的数据
           const formattedData = formatKeywords(props.keywords);
-          console.log('KeywordCloud - 格式化后的数据:', formattedData);
           
           if (!formattedData.length) {
-            console.warn('KeywordCloud - 格式化后数据为空');
             chart.setOption({
               title: {
                 text: props.title || '关键词云',
@@ -197,15 +179,13 @@ export default {
                 color: function() {
                   // 更多柔和的调色板
                   return 'rgb(' + 
-                    [
-                      Math.round(Math.random() * 100 + 80),
-                      Math.round(Math.random() * 140 + 60),
-                      Math.round(Math.random() * 180 + 40)
-                    ].join(',') + ')';
+                    Math.round(Math.random() * 95 + 100) + ',' + 
+                    Math.round(Math.random() * 95 + 100) + ',' + 
+                    Math.round(Math.random() * 95 + 160) + 
+                    ')';
                 }
               },
               emphasis: {
-                focus: 'self',
                 textStyle: {
                   shadowBlur: 10,
                   shadowColor: '#333'
@@ -214,193 +194,159 @@ export default {
               data: formattedData
             }]
           };
-
-          // 在渲染前检查数据
-          console.log('KeywordCloud - 最终图表配置:', option);
-
+          
           // 渲染图表
-          try {
-            chart.setOption(option);
-            console.log('KeywordCloud - 图表渲染成功');
-          } catch (error) {
-            console.error('KeywordCloud - 图表渲染失败:', error);
-          }
+          chart.setOption(option);
+          
+          // 绑定窗口大小改变事件，自动调整图表大小
+          window.addEventListener('resize', resizeChart);
         } catch (error) {
-          console.error('KeywordCloud - 图表初始化过程出错:', error);
+          // 处理初始化或渲染错误
         }
       });
     };
-
+    
     // 格式化关键词数据
     const formatKeywords = (keywords) => {
-      console.log('KeywordCloud - 开始格式化关键词数据:', keywords);
-      
-      // 首先检查数据是否存在
-      if (!keywords) {
-        console.warn('KeywordCloud - 关键词数据为null或undefined');
+      if (!keywords || keywords.length === 0) {
         return [];
       }
       
-      // 确保keywords是一个数组
-      if (!Array.isArray(keywords)) {
-        console.warn('KeywordCloud - 关键词数据不是数组格式:', keywords);
-        
-        // 尝试从对象中提取关键词数据
-        if (typeof keywords === 'object' && keywords !== null) {
-          // 查找可能的数组属性
-          for (const key in keywords) {
-            if (Array.isArray(keywords[key])) {
-              console.log('KeywordCloud - 从对象中找到关键词数组:', key);
-              keywords = keywords[key];
-              break;
+      // 检查数据格式
+      // 格式1: 数组对象 [{name: 'keyword', value: 10}, ...]
+      // 格式2: 简单数组 ['keyword1', 'keyword2', ...]
+      // 格式3: {keywords: [...]} 或其他包含关键词数组的对象
+      
+      // 尝试格式1: 对象数组包含name和value
+      if (keywords.length > 0 && typeof keywords[0] === 'object' && 'name' in keywords[0] && 'value' in keywords[0]) {
+        return keywords;
+      }
+      
+      // 尝试格式2: 字符串数组
+      if (keywords.length > 0 && typeof keywords[0] === 'string') {
+        // 转换为wordcloud需要的格式
+        return keywords.map(word => ({
+          name: word,
+          value: Math.random() * 50 + 50 // 随机值，使得词云更丰富
+        }));
+      }
+      
+      // 尝试格式3: 对象中可能包含关键词
+      if (keywords.length === 1 && typeof keywords[0] === 'object') {
+        for (const key in keywords[0]) {
+          const item = keywords[0][key];
+          if (Array.isArray(item)) {
+            if (item.length > 0) {
+              if (typeof item[0] === 'object' && 'name' in item[0] && 'value' in item[0]) {
+                return item;
+              } else if (typeof item[0] === 'string') {
+                return item.map(word => ({
+                  name: word,
+                  value: Math.random() * 50 + 50
+                }));
+              }
             }
           }
         }
-        
-        // 如果仍然不是数组，返回空数组
-        if (!Array.isArray(keywords)) {
-          console.error('KeywordCloud - 无法处理的关键词数据格式，返回空数组');
-          return [];
+      }
+      
+      // 最后尝试：寻找任何可能是关键词数组的字段
+      if (keywords && typeof keywords === 'object') {
+        for (const key in keywords) {
+          if (Array.isArray(keywords[key]) && keywords[key].length > 0) {
+            const item = keywords[key];
+            if (typeof item[0] === 'object' && 'name' in item[0] && 'value' in item[0]) {
+              return item;
+            } else if (typeof item[0] === 'string') {
+              return item.map(word => ({
+                name: word,
+                value: Math.random() * 50 + 50
+              }));
+            }
+          }
         }
       }
       
-      // 如果数组为空直接返回
-      if (keywords.length === 0) {
-        console.warn('KeywordCloud - 关键词数组为空');
-        return [];
-      }
-      
-      try {
-        const result = keywords.map(item => {
-          // 字符串类型直接处理
-          if (typeof item === 'string') {
-            return {
-              name: item,
-              value: Math.floor(Math.random() * 90) + 10 // 如果只有词，随机生成权重
-            };
-          } 
-          // 对象类型，尝试提取name和value
-          else if (typeof item === 'object' && item !== null) {
-            const name = item.word || item.name || item.keyword || '';
-            const value = item.weight || item.value || item.count || Math.floor(Math.random() * 90) + 10;
-            return { name, value };
-          }
-          // 其他类型返回空对象
-          return { name: '', value: 0 };
-        }).filter(item => item.name); // 过滤掉没有name的项
-        
-        console.log('KeywordCloud - 格式化后的关键词数据:', result);
-        return result;
-      } catch (error) {
-        console.error('KeywordCloud - 格式化关键词数据出错:', error);
-        return [];
-      }
+      // 无法找到有效的关键词数据
+      return [];
     };
-
-    // 处理窗口大小改变
-    const handleResize = () => {
+    
+    // 调整图表大小
+    const resizeChart = () => {
       if (chart) {
-        console.log('KeywordCloud - 窗口大小改变，重新调整图表大小');
         chart.resize();
       }
     };
-
-    // 监听关键词变化
-    watch(() => props.keywords, (newVal, oldVal) => {
-      console.log('KeywordCloud - 关键词数据变化:', 
-                 '新值长度:', newVal ? newVal.length : 0, 
-                 '旧值长度:', oldVal ? oldVal.length : 0);
-      
-      if (chart) {
+    
+    // 监听关键词数据变化
+    watch(() => props.keywords, (newVal) => {
+      if (newVal && newVal.length > 0) {
         const formattedData = formatKeywords(newVal);
-        console.log('KeywordCloud - 更新图表数据:', formattedData);
         
-        chart.setOption({
-          series: [{
-            data: formattedData
-          }]
-        });
-      } else {
-        // 如果图表还未初始化，则初始化
-        console.log('KeywordCloud - 图表未初始化，开始初始化');
-        initChart();
+        if (chart && formattedData.length > 0) {
+          chart.setOption({
+            series: [{ data: formattedData }]
+          });
+        } else if (formattedData.length > 0) {
+          initChart();
+        }
       }
     }, { deep: true });
     
-    // 监听加载状态
+    // 监听加载状态变化
     watch(() => props.loading, (newVal) => {
-      console.log('KeywordCloud - 加载状态变更:', newVal);
-      
-      if (!newVal && !chart && chartRef.value) {
-        // 加载完成且图表未初始化
-        console.log('KeywordCloud - 加载完成，图表未初始化，开始初始化');
+      if (!newVal && !chart && hasData.value) {
         initChart();
       }
     });
-
+    
     // 组件挂载时初始化图表
     onMounted(() => {
-      console.log('KeywordCloud - 组件挂载完成');
-      
-      // 在初始化前确认下父组件是否已传入数据
-      console.log('KeywordCloud - 挂载时数据状态:', 
-                 '关键词数量:', props.keywords ? props.keywords.length : 0, 
-                 '加载状态:', props.loading);
-      
-      // 使用setTimeout确保DOM完全渲染
-      setTimeout(() => {
-        // 如果窗口已经加载完成
+      // 检查是否为浏览器环境
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        // 检查文档是否已加载完成
         if (document.readyState === 'complete') {
-          console.log('KeywordCloud - 文档已加载完成，初始化图表');
-          nextTick().then(() => initChart());
+          initChart();
         } else {
-          // 否则等待窗口完全加载
-          console.log('KeywordCloud - 等待文档加载完成');
-          window.addEventListener('load', () => {
-            console.log('KeywordCloud - 文档加载事件触发，初始化图表');
-            nextTick().then(() => initChart());
-          });
+          // 等待文档加载完成
+          window.addEventListener('load', initChart);
         }
-      }, 200);
-      
-      // 确保在组件销毁时移除事件监听
-      window.addEventListener('resize', handleResize);
+      }
     });
-
-    // 组件卸载前销毁图表
+    
+    // 组件卸载时清理
     onBeforeUnmount(() => {
-      console.log('KeywordCloud - 组件卸载');
       if (chart) {
-        console.log('KeywordCloud - 销毁图表实例');
         chart.dispose();
         chart = null;
       }
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', resizeChart);
+      window.removeEventListener('load', initChart);
     });
-
+    
     return {
       chartRef,
       hasData,
-      chart
+      chart // 导出 chart 实例供父组件使用
     };
   }
-};
+}
 </script>
 
 <style scoped>
 .chart-container {
+  position: relative;
   width: v-bind(width);
   height: v-bind(height);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .keyword-cloud-chart {
   width: 100%;
   height: 100%;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
 }
 
 .loading-overlay {
@@ -420,29 +366,41 @@ export default {
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 .loading-text {
   margin-top: 10px;
+  font-size: 14px;
   color: #666;
 }
 
 .no-data-message {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  color: #909399;
-  font-size: 14px;
+  align-items: center;
+  background-color: #fff;
+  z-index: 5;
 }
 
 .no-data-message i {
-  font-size: 32px;
+  font-size: 30px;
+  color: #ccc;
   margin-bottom: 10px;
+}
+
+.no-data-message p {
+  font-size: 14px;
+  color: #999;
 }
 
 @keyframes spin {

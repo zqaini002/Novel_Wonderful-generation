@@ -1,7 +1,10 @@
 package com.novelassistant.repository;
 
 import com.novelassistant.entity.User;
+import com.novelassistant.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -47,4 +50,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return 用户数量
      */
     long countByCreatedAtAfter(Date date);
+    
+    /**
+     * 统计指定日期之后登录的用户数量
+     * @param date 日期
+     * @return 用户数量
+     */
+    long countByLastLoginAtAfter(Date date);
+    
+    /**
+     * 统计具有特定角色名称的用户数量
+     * @param roleName 角色名称
+     * @return 用户数量
+     */
+    @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = :roleName")
+    long countByRoles_Name(@Param("roleName") Role.ERole roleName);
 } 

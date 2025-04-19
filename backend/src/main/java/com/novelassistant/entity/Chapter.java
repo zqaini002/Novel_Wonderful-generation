@@ -31,7 +31,7 @@ public class Chapter {
     @Column(name = "word_count")
     private Integer wordCount;
     
-    @Column
+    @Column(columnDefinition = "MEDIUMTEXT")
     @Lob
     private String summary;
     

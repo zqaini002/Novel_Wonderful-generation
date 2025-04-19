@@ -11,7 +11,7 @@
 	<groupId>com.novelai</groupId>
 	<artifactId>assistant</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<n>novel-assistant</n>
+	<name>novel-assistant</name>
 	<description>Novel content analysis and summary generation system</description>
 	
 	<properties>
@@ -145,12 +145,6 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         
-        <!-- 自然语言处理依赖 -->
-        <dependency>
-            <groupId>com.hankcs</groupId>
-            <artifactId>hanlp</artifactId>
-            <version>portable-1.8.4</version>
-        </dependency>
         <!-- 添加Stanford CoreNLP依赖作为备选 -->
         <dependency>
             <groupId>edu.stanford.nlp</groupId>

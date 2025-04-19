@@ -154,20 +154,16 @@ export default {
       // 添加双击节点事件 - 显示角色详细信息
       chart.on('dblclick', (params) => {
         if (params.dataType === 'node') {
-          showCharacterDetails(params.data);
+          showCharacterDetail(params.data);
         }
       });
     }
     
     // 显示角色详细信息
-    const showCharacterDetails = (character) => {
-      // 通知父组件显示角色详情
-      if (character) {
-        console.log('角色详情:', character);
-        // 触发事件将角色信息传递给父组件
-        // 父组件可以根据这些信息显示详细弹窗
-        // 这里只是简单的console.log
-      }
+    const showCharacterDetail = (character) => {
+      if (!character) return;
+      
+      // 显示角色详情的逻辑保持不变
     }
     
     // 格式化网络数据，添加必要的视觉元素

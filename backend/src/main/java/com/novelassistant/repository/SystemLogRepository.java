@@ -52,4 +52,13 @@ public interface SystemLogRepository extends JpaRepository<SystemLog, Long> {
      * 删除指定日期之前的日志
      */
     int deleteByTimestampBefore(Date date);
+
+    /**
+     * 统计指定级别和日期之后的日志数量
+     * 
+     * @param level 日志级别
+     * @param date 日期
+     * @return 日志数量
+     */
+    long countByLevelAndTimestampAfter(String level, Date date);
 } 

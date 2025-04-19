@@ -156,7 +156,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
 import { User, UserFilled, Reading, Loading, Check, Document, Delete, PieChart, InfoFilled } from '@element-plus/icons-vue'
 import adminService from '@/api/admin'
 
@@ -252,22 +252,72 @@ const clearCache = async () => {
   try {
     // 确认提示
     await ElMessageBox.confirm(
-      '确定要清理系统缓存吗？这可能会暂时影响系统性能。',
-      '确认操作',
+      `<div style="text-align: left;">
+        <h3 style="margin-top: 0;">即将清理以下缓存:</h3>
+        <ul style="padding-left: 20px;">
+          <li>JVM内存垃圾回收</li>
+          <li>临时文件</li>
+          <li>上传目录临时文件</li>
+          <li>Hibernate二级缓存</li>
+        </ul>
+        <p>这可能会暂时影响系统性能，确定要继续吗？</p>
+      </div>`,
+      '系统缓存清理',
       {
-        confirmButtonText: '确定',
+        confirmButtonText: '确定清理',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
+        dangerouslyUseHTMLString: true
       }
     )
     
+    // 显示加载中
+    const loadingInstance = ElLoading.service({
+      lock: true,
+      text: '正在清理系统缓存...',
+      background: 'rgba(0, 0, 0, 0.7)'
+    });
+    
     // 执行清理
-    await adminService.clearSystemCache()
-    ElMessage.success('缓存清理成功')
+    try {
+      const response = await adminService.clearSystemCache();
+      
+      // 关闭加载
+      loadingInstance.close();
+      
+      // 根据响应显示不同的成功消息
+      if (response && response.message) {
+        ElMessage({
+          type: 'success',
+          message: response.message,
+          duration: 3000
+        });
+      } else {
+        ElMessage({
+          type: 'success',
+          message: '系统缓存清理成功',
+          duration: 3000
+        });
+      }
+      
+      // 刷新数据
+      fetchDashboardData();
+    } catch (error) {
+      // 关闭加载
+      loadingInstance.close();
+      
+      // 显示错误信息
+      ElMessage({
+        type: 'error',
+        message: `清理缓存失败: ${error.message || '未知错误'}`,
+        duration: 5000
+      });
+    }
   } catch (err) {
+    // 用户取消，不做任何操作
     if (err !== 'cancel') {
-      console.error('清理缓存失败:', err)
-      ElMessage.error('清理缓存失败')
+      console.error('清理缓存失败:', err);
+      ElMessage.error('清理缓存失败');
     }
   }
 }
@@ -283,33 +333,27 @@ const showStatsDetails = () => {
 
 // 获取详细的统计数据
 const fetchDetailedStats = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    // 这里可以调用更详细的统计API，如果有的话
-    // 暂时使用模拟数据扩展现有统计
-    const response = await adminService.getDashboardStats()
+    // 调用详细统计API获取真实数据，不再使用模拟数据
+    const response = await adminService.getDetailedSystemStats();
     
     if (response) {
-      // 合并基础数据
-      stats.value = {
-        ...response,
-        // 添加模拟的详细数据
-        activeUsers: Math.floor(response.totalUsers * 0.7),
-        adminUsers: Math.max(1, Math.floor(response.totalUsers * 0.05)),
-        pendingNovels: Math.floor(response.totalNovels * 0.1),
-        failedNovels: Math.floor(response.totalNovels * 0.05),
-        todayNovels: Math.floor(response.totalNovels * 0.02),
-        dbSize: `${(Math.random() * 5 + 1).toFixed(2)} GB`,
-        storageSize: `${(Math.random() * 10 + 2).toFixed(2)} GB`,
-        uptime: `${Math.floor(Math.random() * 30 + 1)} 天`,
-        recentErrors: Math.floor(Math.random() * 10)
-      }
+      console.log('详细系统统计数据:', response);
+      // 直接使用后端返回的完整数据
+      stats.value = response;
+    } else {
+      // 如果返回为空，保留基本统计数据
+      ElMessage.warning('未能获取完整的系统详情数据');
     }
   } catch (error) {
-    console.error('获取详细统计数据失败:', error)
-    ElMessage.error('获取详细统计数据失败')
+    console.error('获取详细统计数据失败:', error);
+    ElMessage.error('获取详细统计数据失败: ' + (error.message || '未知错误'));
+    
+    // 出错时回退到基本数据
+    fetchDashboardData();
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 

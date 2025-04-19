@@ -85,43 +85,6 @@ export default defineComponent({
     return {
       zhCn
     }
-  },
-  created() {
-    // 删除这部分代码，因为这些逻辑已经在router/index.js中实现
-    // this.$router.beforeEach((to, from, next) => {
-    //   // 设置页面标题
-    //   document.title = to.meta.title || '小说智析'
-    //   
-    //   // 判断该路由是否需要登录权限
-    //   if (to.matched.some(record => record.meta.requiresAuth)) {
-    //     const user = JSON.parse(localStorage.getItem('user'))
-    //     
-    //     if (!user) {
-    //       // 用户未登录，跳转到登录页
-    //       next({
-    //         path: '/login',
-    //         query: { redirect: to.fullPath }
-    //       })
-    //     } else if (to.matched.some(record => record.meta.requiresAdmin)) {
-    //       // 检查是否有管理员权限
-    //       const isAdmin = user.roles && user.roles.some(role => role.name === 'ROLE_ADMIN')
-    //       
-    //       if (!isAdmin) {
-    //         // 无管理员权限，跳转到首页
-    //         next({ path: '/' })
-    //       } else {
-    //         // 有管理员权限，继续访问
-    //         next()
-    //       }
-    //     } else {
-    //       // 普通登录页面，继续访问
-    //       next()
-    //     }
-    //   } else {
-    //     // 不需要登录的页面
-    //     next()
-    //   }
-    // })
   }
 })
 </script>

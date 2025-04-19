@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import com.novelassistant.entity.Novel;
 import com.novelassistant.entity.User;
@@ -51,6 +52,22 @@ public class AdminController {
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             logger.error("获取仪表盘数据失败", e);
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+    
+    /**
+     * 获取详细的系统统计信息
+     */
+    @GetMapping("/dashboard/detailed")
+    public ResponseEntity<?> getDetailedSystemStats() {
+        logger.info("接收到获取详细系统统计信息请求");
+        try {
+            Map<String, Object> stats = adminService.getDetailedSystemStats();
+            logger.info("详细系统统计信息获取成功");
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            logger.error("获取详细系统统计信息失败", e);
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
     }
@@ -212,12 +229,33 @@ public class AdminController {
     public ResponseEntity<?> clearSystemCache() {
         logger.info("接收到清理系统缓存请求");
         try {
+            // 捕获可能返回的异常
+            long startTime = System.currentTimeMillis();
             adminService.clearSystemCache();
-            logger.info("系统缓存清理成功");
-            return ResponseEntity.ok(Collections.singletonMap("message", "系统缓存已清理"));
+            long endTime = System.currentTimeMillis();
+            
+            // 构建详细响应
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "系统缓存已清理成功");
+            response.put("status", "success");
+            response.put("timeSpent", (endTime - startTime) + "ms");
+            
+            // 获取最新系统状态
+            Map<String, Object> stats = adminService.getDashboardStats();
+            response.put("systemStats", stats);
+            
+            logger.info("系统缓存清理成功，耗时: {}ms", (endTime - startTime));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("清理系统缓存失败", e);
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+            
+            // 构建错误响应
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            errorResponse.put("status", "failed");
+            errorResponse.put("details", e.getClass().getName());
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
     

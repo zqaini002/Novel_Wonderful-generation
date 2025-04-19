@@ -4,6 +4,7 @@ import com.novelassistant.entity.Novel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -30,4 +31,11 @@ public interface NovelRepository extends JpaRepository<Novel, Long> {
      * @return 该用户上传的小说列表
      */
     List<Novel> findByUserId(Long userId);
+    
+    /**
+     * 统计指定日期之后创建的小说数量
+     * @param date 日期
+     * @return 小说数量
+     */
+    long countByCreatedAtAfter(Date date);
 } 
