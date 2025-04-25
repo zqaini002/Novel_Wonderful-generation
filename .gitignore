@@ -1,0 +1,11 @@
+### IntelliJ IDEA ###
+*.txt
+/backend/logs
+/backend/src/main/resources/models
+/backend/target
+/backend/.idea
+
+### VSCODE ###
+.vscode
+/frontend/node_modules
+

@@ -1,0 +1,4 @@
+# Ignore third-party libraries
+src/store/echarts/*.min.js
+src/store/echarts/echarts.min.js
+src/store/echarts/echarts.wordcloud.min.js 
